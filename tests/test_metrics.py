@@ -7,4 +7,4 @@ def test_retrieval_metrics_are_deterministic():
     assert metrics.recall_at_3 == 0.5
     assert metrics.recall_at_5 == 0.5
     assert metrics.recall_at_10 == 0.5
-    assert metrics.mrr == (1 + 1 / 3) / 4
+    assert metrics.mrr == (1 + 1 / 3 + 1 / 12) / 4

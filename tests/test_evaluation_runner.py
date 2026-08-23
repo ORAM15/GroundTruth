@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from groundtruth.domain.models import Chunk
 from groundtruth.evaluation.dataset import RetrievalCase
 from groundtruth.evaluation.runner import evaluate_retriever

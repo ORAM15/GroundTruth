@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Sequence
 
 from groundtruth.retrieval.models import RetrievalResult, Retriever, reciprocal_rank_fusion
 

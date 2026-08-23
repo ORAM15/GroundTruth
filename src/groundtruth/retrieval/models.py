@@ -22,17 +22,25 @@ class Retriever(Protocol):
 
 def reciprocal_rank_fusion(*ranked_lists: Sequence[RetrievalResult], k: int = 60) -> list[RetrievalResult]:
     """Fuse independent rankings without assuming score calibration."""
+    if k < 1:
+        raise ValueError("k must be at least 1")
     fused: dict[str, dict] = {}
     for results in ranked_lists:
         for result in results:
             key = result.chunk.chunk_id
-            entry = fused.setdefault(key, {"chunk": result.chunk, "score": 0.0, "lexical_rank": None, "dense_rank": None})
+            entry = fused.setdefault(
+                key,
+                {"chunk": result.chunk, "score": 0.0, "lexical_rank": None, "dense_rank": None},
+            )
             entry["score"] += 1.0 / (k + result.rank)
             if result.method == "lexical":
                 entry["lexical_rank"] = result.rank
             if result.method == "dense":
                 entry["dense_rank"] = result.rank
-    ordered = sorted(fused.values(), key=lambda item: item["score"], reverse=True)
+    ordered = sorted(
+        fused.values(),
+        key=lambda item: (-item["score"], item["chunk"].ordinal, item["chunk"].chunk_id),
+    )
     return [
         RetrievalResult(
             chunk=item["chunk"],

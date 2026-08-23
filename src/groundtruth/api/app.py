@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+import os
+
 from fastapi import FastAPI, HTTPException, UploadFile
 from pydantic import BaseModel, Field
-
-from groundtruth.ingestion.pdf import PdfLoader, StructureAwareChunker
 
 app = FastAPI(title="GroundTruth", version="0.1.0")
 
@@ -25,6 +25,8 @@ def health() -> dict[str, str]:
 
 @app.get("/ready")
 def ready() -> dict[str, str]:
+    if not os.getenv("DATABASE_URL"):
+        raise HTTPException(status_code=503, detail="Evidence store is not configured.")
     return {"status": "ready"}
 
 

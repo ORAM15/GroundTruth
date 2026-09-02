@@ -17,6 +17,35 @@ This repository is intentionally reserved and currently contains no implementati
 - Explain and review important engineering decisions.
 - Keep changes small, testable, and reviewable.
 
+## AI Fresh Session Resume Protocol
+
+**CRITICAL:** Every fresh AI session must follow this exact sequence before making any changes.
+
+1. STOP — do not modify anything
+2. Inspect Git/repository state
+3. Read `docs/project-state/PROJECT_STATE.md`
+4. Read `docs/project-state/HANDOFF_RECORD.md`
+5. Compare state for consistency
+6. Read governing project documents (Constitution, Requirements, Architecture, Technology, Phase Plan)
+7. Read relevant decisions in `docs/project-state/DECISION_LOG.md`
+8. Identify current checkpoint
+9. Verify checkpoint prerequisites
+10. Inspect latest validation in `docs/project-state/VALIDATION_RECORD.md`
+11. Inspect known defects/failures
+12. Inspect active implementation
+13. Check approvals/blockers
+14. Confirm permitted scope based on checkpoint
+15. Determine exact next action
+16. Only now plan implementation
+17. Implement bounded work
+18. Validate
+19. Record evidence
+20. Update project state
+21. Synchronize GitHub
+22. Prepare next handoff
+
+AI agents must operate within the boundaries of the AUTONOMOUS_EXECUTION_CONTRACT (see `docs/autonomy/AUTONOMOUS_EXECUTION_CONTRACT.md`) and respect the constraints of the Checkpoint System.
+
 ## Trustworthiness requirements
 
 - Never fabricate citations or source support.

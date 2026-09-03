@@ -47,10 +47,10 @@ None
 - Checkpoint C0.2 (Owner Approval Required)
 
 ## Latest Validation
-None
+VR-001
 
 ## Repository State
-Clean baseline establishing execution substrate.
+Clean baseline establishing execution substrate with C0.1 artifacts.
 
 ## Known Defects
 None
@@ -59,7 +59,7 @@ None
 None
 
 ## Next Permitted Action
-Complete the initial execution substrate and submit for review.
+Wait for owner approval for C0.1.
 
 ## Forbidden Next Actions
 - Do not implement Phase 1.

@@ -1,13 +1,13 @@
 # GROUNDTRUTH HANDOFF RECORD
 
 ## Handoff ID
-HO-20260902-001
+HO-20260904-001
 
 ## Generated
-
+2026-09-04 06:25 UTC
 
 ## Project State
-The repository has been initialized with the execution substrate for autonomous agents. We are currently in Phase 0, establishing the project baseline.
+The repository baseline (C0.1) has been created and is awaiting owner approval.
 
 ## Current Phase
 Phase 0
@@ -16,21 +16,21 @@ Phase 0
 C0.1
 
 ## Checkpoint Status
-IN PROGRESS
+REVIEW
 
 ## What Has Been Completed
-Created the execution substrate documents:
-- AGENTS.md
-- docs/project-state/PROJECT_STATE.md
-- docs/project-state/CHECKPOINT_LOG.md
-- docs/project-state/DECISION_LOG.md
-- docs/project-state/VALIDATION_RECORD.md
-- docs/project-state/HANDOFF_RECORD.md
-- docs/autonomy/AUTONOMOUS_EXECUTION_CONTRACT.md
-- docs/autonomy/JULES_INVOCATION.md
+Created the repository baseline documents based on the frozen foundation documents:
+- README.md
+- PRODUCT.md
+- REQUIREMENTS.md
+- ARCHITECTURE.md
+- TECHNOLOGY.md
+- EVALUATION.md
+- THREAT_MODEL.md
+- DEVELOPMENT.md
 
 ## What Is Currently Being Worked On
-Executing Checkpoint C0.1: Repository Baseline.
+Waiting for owner approval for C0.1.
 
 ## What Is Blocked
 None
@@ -45,12 +45,12 @@ None
 - Checkpoint C0.1 requires Project Owner approval.
 
 ## Latest Validation
-None
+Cross-document consistency review
 
 ## Repository State
-Branch: bootstrap-execution-substrate
+Branch: checkpoint/C0.1-repository-baseline
 Commit: Pending PR creation.
-Working tree: Substrate documents added.
+Working tree: Repository baseline added.
 Relevant PR: Pending.
 Relevant Issue: None.
 
@@ -61,18 +61,18 @@ None
 None
 
 ## Important Recent Changes
-Established the execution substrate based on the frozen foundation documents.
+Established the repository baseline based on the frozen foundation documents.
 
 ## What Must NOT Be Changed
 Do not modify the frozen foundation documents. Do not jump ahead to Phase 1. Do not introduce arbitrary dependencies or code architectures not approved by the foundation.
 
 ## Next Permitted Action
-Complete the initial execution substrate and submit for review.
+Wait for owner approval of C0.1.
 
 ## Resume Instructions
 1. Inspect Git state.
 2. Read PROJECT_STATE.md and HANDOFF_RECORD.md to confirm consistency.
-3. Proceed with executing Checkpoint C0.1 if authorized, or wait for review of the execution substrate.
+3. If C0.1 is approved, proceed to C0.2.
 
 ## Authoritative References
 - Project Constitution

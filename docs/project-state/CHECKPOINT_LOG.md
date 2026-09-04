@@ -6,13 +6,13 @@ Phase:
 Phase 0
 
 Status:
-IN PROGRESS
+REVIEW
 
 Issue:
 None
 
 Branch:
-bootstrap-execution-substrate
+checkpoint/C0.1-repository-baseline
 
 PR:
 None
@@ -27,14 +27,14 @@ Objective:
 Establish GitHub as the authoritative project source of truth.
 
 Acceptance Criteria:
-- [ ] documents exist
-- [ ] terminology is consistent
-- [ ] no conflicting scope
-- [ ] technology uncertainty remains explicitly marked
-- [ ] architecture matches requirements
+- [x] documents exist
+- [x] terminology is consistent
+- [x] no conflicting scope
+- [x] technology uncertainty remains explicitly marked
+- [x] architecture matches requirements
 
 Validation:
-None
+Cross-document consistency review
 
 Human Approval:
 PENDING

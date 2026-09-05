@@ -7,7 +7,7 @@ GroundTruth
 1.0
 
 ## Last Updated
-2026-09-02 20:42 UTC
+2026-09-05 06:35 UTC
 
 ## Current Phase
 Phase 0 — Project Foundation
@@ -16,22 +16,22 @@ Phase 0 — Project Foundation
 C0.1 — Repository Baseline
 
 ## Checkpoint Status
-IN PROGRESS
+REVIEW (PENDING HUMAN APPROVAL)
 
 ## Completed Checkpoints
-- None
+- None (C0.1 is in review)
 
 ## Active Work
-Establishing execution substrate and repository baseline.
+Waiting for C0.1 repository baseline approval.
 
 ## Active Branch
-bootstrap-execution-substrate
+checkpoint/C0.1-repository-baseline
 
 ## Active Issue
 None
 
 ## Active PR
-None
+Pending Creation
 
 ## Blocked Work
 None
@@ -59,7 +59,7 @@ None
 None
 
 ## Next Permitted Action
-Complete the initial execution substrate and submit for review.
+Wait for project owner to approve the C0.1 repository baseline. Do not start C0.2 until approved.
 
 ## Forbidden Next Actions
 - Do not implement Phase 1.

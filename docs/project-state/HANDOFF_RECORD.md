@@ -16,9 +16,18 @@ Phase 0
 C0.1
 
 ## Checkpoint Status
-IN PROGRESS
+REVIEW (PENDING HUMAN APPROVAL)
 
 ## What Has Been Completed
+Migrated foundational documents to repository root:
+- PRODUCT.md
+- REQUIREMENTS.md
+- ARCHITECTURE.md
+- TECHNOLOGY.md
+- EVALUATION.md
+- DEVELOPMENT.md
+- THREAT_MODEL.md
+
 Created the execution substrate documents:
 - AGENTS.md
 - docs/project-state/PROJECT_STATE.md
@@ -48,7 +57,7 @@ None
 None
 
 ## Repository State
-Branch: bootstrap-execution-substrate
+Branch: checkpoint/C0.1-repository-baseline
 Commit: Pending PR creation.
 Working tree: Substrate documents added.
 Relevant PR: Pending.

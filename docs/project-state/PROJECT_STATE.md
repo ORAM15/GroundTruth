@@ -4,10 +4,10 @@
 GroundTruth
 
 ## State Version
-1.0
+1.1
 
 ## Last Updated
-2026-09-02 20:42 UTC
+$(date -u +"%Y-%m-%d %H:%M UTC")
 
 ## Current Phase
 Phase 0 — Project Foundation
@@ -16,16 +16,16 @@ Phase 0 — Project Foundation
 C0.1 — Repository Baseline
 
 ## Checkpoint Status
-IN PROGRESS
+REVIEW (PENDING HUMAN APPROVAL)
 
 ## Completed Checkpoints
 - None
 
 ## Active Work
-Establishing execution substrate and repository baseline.
+Executing Checkpoint C0.1: Repository Baseline.
 
 ## Active Branch
-bootstrap-execution-substrate
+checkpoint/C0.1-repository-baseline
 
 ## Active Issue
 None
@@ -50,7 +50,7 @@ None
 None
 
 ## Repository State
-Clean baseline establishing execution substrate.
+Baseline documentation established.
 
 ## Known Defects
 None
@@ -59,12 +59,13 @@ None
 None
 
 ## Next Permitted Action
-Complete the initial execution substrate and submit for review.
+Await human approval for Checkpoint C0.1.
 
 ## Forbidden Next Actions
 - Do not implement Phase 1.
 - Do not modify or merge main.
 - Do not fabricate implementation code.
+- Do not proceed to C0.2 without C0.1 approval.
 
 ## State Authority
 Final Master Phase Plan v1.0

@@ -1,13 +1,13 @@
 # GROUNDTRUTH HANDOFF RECORD
 
 ## Handoff ID
-HO-20260902-001
+HO-$(date -u +"%Y%m%d")-002
 
 ## Generated
-
+$(date -u +"%Y-%m-%d %H:%M UTC")
 
 ## Project State
-The repository has been initialized with the execution substrate for autonomous agents. We are currently in Phase 0, establishing the project baseline.
+The repository baseline documentation has been established. The agent completed the work for C0.1. C0.1 is now pending human approval.
 
 ## Current Phase
 Phase 0
@@ -16,24 +16,25 @@ Phase 0
 C0.1
 
 ## Checkpoint Status
-IN PROGRESS
+REVIEW (PENDING HUMAN APPROVAL)
 
 ## What Has Been Completed
-Created the execution substrate documents:
-- AGENTS.md
-- docs/project-state/PROJECT_STATE.md
-- docs/project-state/CHECKPOINT_LOG.md
-- docs/project-state/DECISION_LOG.md
-- docs/project-state/VALIDATION_RECORD.md
-- docs/project-state/HANDOFF_RECORD.md
-- docs/autonomy/AUTONOMOUS_EXECUTION_CONTRACT.md
-- docs/autonomy/JULES_INVOCATION.md
+Established baseline documentation for Checkpoint C0.1 by copying frozen foundation documents to the root directory as required:
+- PRODUCT.md (from constitution)
+- REQUIREMENTS.md
+- ARCHITECTURE.md
+- TECHNOLOGY.md
+- EVALUATION.md
+- DEVELOPMENT.md (from github workflow)
+- Created THREAT_MODEL.md
+- Updated README.md
+- Updated state files (PROJECT_STATE.md, CHECKPOINT_LOG.md) to REVIEW (PENDING HUMAN APPROVAL).
 
 ## What Is Currently Being Worked On
-Executing Checkpoint C0.1: Repository Baseline.
+Waiting for human approval on C0.1.
 
 ## What Is Blocked
-None
+Progression to C0.2 is blocked pending human approval of C0.1.
 
 ## Failed Attempts
 None
@@ -45,14 +46,12 @@ None
 - Checkpoint C0.1 requires Project Owner approval.
 
 ## Latest Validation
-None
+Cross-document consistency review (manual verification by AI that documents map to foundation).
 
 ## Repository State
-Branch: bootstrap-execution-substrate
+Branch: checkpoint/C0.1-repository-baseline
 Commit: Pending PR creation.
-Working tree: Substrate documents added.
-Relevant PR: Pending.
-Relevant Issue: None.
+Working tree: Baseline documents added. State updated.
 
 ## Known Defects
 None
@@ -61,18 +60,18 @@ None
 None
 
 ## Important Recent Changes
-Established the execution substrate based on the frozen foundation documents.
+Established the baseline documentation for C0.1.
 
 ## What Must NOT Be Changed
-Do not modify the frozen foundation documents. Do not jump ahead to Phase 1. Do not introduce arbitrary dependencies or code architectures not approved by the foundation.
+Do not modify the frozen foundation documents. Do not jump ahead to Phase 1. Do not introduce arbitrary dependencies or code architectures not approved by the foundation. Do not proceed to C0.2 until C0.1 is approved.
 
 ## Next Permitted Action
-Complete the initial execution substrate and submit for review.
+Await human approval for Checkpoint C0.1.
 
 ## Resume Instructions
 1. Inspect Git state.
 2. Read PROJECT_STATE.md and HANDOFF_RECORD.md to confirm consistency.
-3. Proceed with executing Checkpoint C0.1 if authorized, or wait for review of the execution substrate.
+3. If C0.1 is approved, proceed to C0.2. Otherwise, stop.
 
 ## Authoritative References
 - Project Constitution

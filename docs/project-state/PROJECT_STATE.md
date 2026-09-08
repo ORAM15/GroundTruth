@@ -16,16 +16,16 @@ Phase 0 — Project Foundation
 C0.1 — Repository Baseline
 
 ## Checkpoint Status
-IN PROGRESS
+REVIEW (PENDING HUMAN APPROVAL)
 
 ## Completed Checkpoints
 - None
 
 ## Active Work
-Establishing execution substrate and repository baseline.
+Waiting for human approval of Checkpoint C0.1 - Repository Baseline.
 
 ## Active Branch
-bootstrap-execution-substrate
+checkpoint/C0.1-repository-baseline
 
 ## Active Issue
 None
@@ -47,10 +47,10 @@ None
 - Checkpoint C0.2 (Owner Approval Required)
 
 ## Latest Validation
-None
+Validation of cross-document consistency completed for C0.1.
 
 ## Repository State
-Clean baseline establishing execution substrate.
+Clean baseline establishing execution substrate and baseline documents.
 
 ## Known Defects
 None
@@ -59,7 +59,7 @@ None
 None
 
 ## Next Permitted Action
-Complete the initial execution substrate and submit for review.
+Wait for project owner review of C0.1.
 
 ## Forbidden Next Actions
 - Do not implement Phase 1.

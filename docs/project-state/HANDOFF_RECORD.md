@@ -16,7 +16,7 @@ Phase 0
 C0.1
 
 ## Checkpoint Status
-IN PROGRESS
+REVIEW (PENDING HUMAN APPROVAL)
 
 ## What Has Been Completed
 Created the execution substrate documents:
@@ -28,12 +28,20 @@ Created the execution substrate documents:
 - docs/project-state/HANDOFF_RECORD.md
 - docs/autonomy/AUTONOMOUS_EXECUTION_CONTRACT.md
 - docs/autonomy/JULES_INVOCATION.md
+Created root index documents pointing to foundation:
+- PRODUCT.md
+- REQUIREMENTS.md
+- ARCHITECTURE.md
+- TECHNOLOGY.md
+- EVALUATION.md
+- THREAT_MODEL.md
+- DEVELOPMENT.md
 
 ## What Is Currently Being Worked On
-Executing Checkpoint C0.1: Repository Baseline.
+None - waiting for human approval for C0.1.
 
 ## What Is Blocked
-None
+Checkpoint C0.1 is complete but blocked pending human approval.
 
 ## Failed Attempts
 None
@@ -50,7 +58,7 @@ None
 ## Repository State
 Branch: bootstrap-execution-substrate
 Commit: Pending PR creation.
-Working tree: Substrate documents added.
+Working tree: Substrate documents and root index documents added.
 Relevant PR: Pending.
 Relevant Issue: None.
 
@@ -67,12 +75,13 @@ Established the execution substrate based on the frozen foundation documents.
 Do not modify the frozen foundation documents. Do not jump ahead to Phase 1. Do not introduce arbitrary dependencies or code architectures not approved by the foundation.
 
 ## Next Permitted Action
-Complete the initial execution substrate and submit for review.
+Await human approval for Checkpoint C0.1 before proceeding to C0.2.
 
 ## Resume Instructions
 1. Inspect Git state.
 2. Read PROJECT_STATE.md and HANDOFF_RECORD.md to confirm consistency.
-3. Proceed with executing Checkpoint C0.1 if authorized, or wait for review of the execution substrate.
+3. Verify if human approval for C0.1 has been granted.
+4. If approved, proceed with C0.2. If not, wait.
 
 ## Authoritative References
 - Project Constitution

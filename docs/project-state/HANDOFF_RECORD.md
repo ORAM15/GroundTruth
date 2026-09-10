@@ -16,7 +16,7 @@ Phase 0
 C0.1
 
 ## Checkpoint Status
-IN PROGRESS
+REVIEW (PENDING HUMAN APPROVAL)
 
 ## What Has Been Completed
 Created the execution substrate documents:
@@ -28,12 +28,20 @@ Created the execution substrate documents:
 - docs/project-state/HANDOFF_RECORD.md
 - docs/autonomy/AUTONOMOUS_EXECUTION_CONTRACT.md
 - docs/autonomy/JULES_INVOCATION.md
+Created pointer documents:
+- PRODUCT.md
+- REQUIREMENTS.md
+- ARCHITECTURE.md
+- TECHNOLOGY.md
+- EVALUATION.md
+- THREAT_MODEL.md
+- DEVELOPMENT.md
 
 ## What Is Currently Being Worked On
-Executing Checkpoint C0.1: Repository Baseline.
+Pending Human Approval for Checkpoint C0.1.
 
 ## What Is Blocked
-None
+Waiting for human review of C0.1.
 
 ## Failed Attempts
 None
@@ -45,12 +53,12 @@ None
 - Checkpoint C0.1 requires Project Owner approval.
 
 ## Latest Validation
-None
+VR-20260910-001
 
 ## Repository State
-Branch: bootstrap-execution-substrate
+Branch: checkpoint/C0.1-repository-baseline
 Commit: Pending PR creation.
-Working tree: Substrate documents added.
+Working tree: Substrate documents and pointer documents added.
 Relevant PR: Pending.
 Relevant Issue: None.
 
@@ -61,18 +69,18 @@ None
 None
 
 ## Important Recent Changes
-Established the execution substrate based on the frozen foundation documents.
+Established the execution substrate based on the frozen foundation documents. Created repository baseline pointer documents.
 
 ## What Must NOT Be Changed
 Do not modify the frozen foundation documents. Do not jump ahead to Phase 1. Do not introduce arbitrary dependencies or code architectures not approved by the foundation.
 
 ## Next Permitted Action
-Complete the initial execution substrate and submit for review.
+Wait for human approval of C0.1.
 
 ## Resume Instructions
 1. Inspect Git state.
 2. Read PROJECT_STATE.md and HANDOFF_RECORD.md to confirm consistency.
-3. Proceed with executing Checkpoint C0.1 if authorized, or wait for review of the execution substrate.
+3. Verify if C0.1 has been approved by the project owner.
 
 ## Authoritative References
 - Project Constitution

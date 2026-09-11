@@ -1,7 +1,7 @@
 # GROUNDTRUTH HANDOFF RECORD
 
 ## Handoff ID
-HO-20260902-001
+HO-20260911-002
 
 ## Generated
 
@@ -16,10 +16,20 @@ Phase 0
 C0.1
 
 ## Checkpoint Status
-IN PROGRESS
+REVIEW (PENDING HUMAN APPROVAL)
 
 ## What Has Been Completed
 Created the execution substrate documents:
+- (Previous docs)
+
+Created root-level baseline pointer documents for C0.1:
+- PRODUCT.md
+- REQUIREMENTS.md
+- ARCHITECTURE.md
+- TECHNOLOGY.md
+- EVALUATION.md
+- THREAT_MODEL.md
+- DEVELOPMENT.md
 - AGENTS.md
 - docs/project-state/PROJECT_STATE.md
 - docs/project-state/CHECKPOINT_LOG.md
@@ -30,7 +40,7 @@ Created the execution substrate documents:
 - docs/autonomy/JULES_INVOCATION.md
 
 ## What Is Currently Being Worked On
-Executing Checkpoint C0.1: Repository Baseline.
+Waiting for human approval on Checkpoint C0.1.
 
 ## What Is Blocked
 None
@@ -45,10 +55,10 @@ None
 - Checkpoint C0.1 requires Project Owner approval.
 
 ## Latest Validation
-None
+Cross-document consistency review performed; root-level baseline documents created.
 
 ## Repository State
-Branch: bootstrap-execution-substrate
+Branch: checkpoint/C0.1-repository-baseline
 Commit: Pending PR creation.
 Working tree: Substrate documents added.
 Relevant PR: Pending.
@@ -67,7 +77,7 @@ Established the execution substrate based on the frozen foundation documents.
 Do not modify the frozen foundation documents. Do not jump ahead to Phase 1. Do not introduce arbitrary dependencies or code architectures not approved by the foundation.
 
 ## Next Permitted Action
-Complete the initial execution substrate and submit for review.
+Wait for C0.1 human approval before proceeding.
 
 ## Resume Instructions
 1. Inspect Git state.

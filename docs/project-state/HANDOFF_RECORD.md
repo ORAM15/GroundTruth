@@ -16,7 +16,7 @@ Phase 0
 C0.1
 
 ## Checkpoint Status
-IN PROGRESS
+REVIEW (PENDING HUMAN APPROVAL)
 
 ## What Has Been Completed
 Created the execution substrate documents:
@@ -33,7 +33,7 @@ Created the execution substrate documents:
 Executing Checkpoint C0.1: Repository Baseline.
 
 ## What Is Blocked
-None
+- Checkpoint C0.1 requires Project Owner approval.
 
 ## Failed Attempts
 None

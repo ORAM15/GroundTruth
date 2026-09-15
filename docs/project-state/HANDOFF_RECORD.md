@@ -13,24 +13,16 @@ The repository has been initialized with the execution substrate for autonomous 
 Phase 0
 
 ## Current Checkpoint
-C0.1
+C0.2
 
 ## Checkpoint Status
-IN PROGRESS
+REVIEW (PENDING HUMAN APPROVAL)
 
 ## What Has Been Completed
-Created the execution substrate documents:
-- AGENTS.md
-- docs/project-state/PROJECT_STATE.md
-- docs/project-state/CHECKPOINT_LOG.md
-- docs/project-state/DECISION_LOG.md
-- docs/project-state/VALIDATION_RECORD.md
-- docs/project-state/HANDOFF_RECORD.md
-- docs/autonomy/AUTONOMOUS_EXECUTION_CONTRACT.md
-- docs/autonomy/JULES_INVOCATION.md
+C0.1 (Repository Baseline) has been approved and merged into main. C0.2 templates (`CHANGE_REQUEST_TEMPLATE.md`, `ADR_TEMPLATE.md`, `CHECKPOINT_TEMPLATE.md`) have been created. Validation VR-002 passed.
 
 ## What Is Currently Being Worked On
-Executing Checkpoint C0.1: Repository Baseline.
+Waiting for owner approval for C0.2.
 
 ## What Is Blocked
 None
@@ -42,17 +34,14 @@ None
 None
 
 ## Required Human Approvals
-- Checkpoint C0.1 requires Project Owner approval.
+- Checkpoint C0.2 requires Project Owner approval.
 
 ## Latest Validation
-None
+VR-002 (For C0.2)
 
 ## Repository State
-Branch: bootstrap-execution-substrate
-Commit: Pending PR creation.
-Working tree: Substrate documents added.
-Relevant PR: Pending.
-Relevant Issue: None.
+Branch: checkpoint/C0.2-change-control-baseline
+Working tree: C0.2 change-control templates added.
 
 ## Known Defects
 None
@@ -61,18 +50,18 @@ None
 None
 
 ## Important Recent Changes
-Established the execution substrate based on the frozen foundation documents.
+Created C0.2 change-control templates. Passed validation. Awaiting approval.
 
 ## What Must NOT Be Changed
 Do not modify the frozen foundation documents. Do not jump ahead to Phase 1. Do not introduce arbitrary dependencies or code architectures not approved by the foundation.
 
 ## Next Permitted Action
-Complete the initial execution substrate and submit for review.
+Wait for owner approval for C0.2.
 
 ## Resume Instructions
 1. Inspect Git state.
 2. Read PROJECT_STATE.md and HANDOFF_RECORD.md to confirm consistency.
-3. Proceed with executing Checkpoint C0.1 if authorized, or wait for review of the execution substrate.
+3. Wait for owner approval for C0.2.
 
 ## Authoritative References
 - Project Constitution

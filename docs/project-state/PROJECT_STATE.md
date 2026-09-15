@@ -7,25 +7,25 @@ GroundTruth
 1.0
 
 ## Last Updated
-2026-09-02 20:42 UTC
+2026-09-15 06:33 UTC
 
 ## Current Phase
 Phase 0 — Project Foundation
 
 ## Current Checkpoint
-C0.1 — Repository Baseline
+C0.2 — Change-Control Baseline
 
 ## Checkpoint Status
-IN PROGRESS
+REVIEW (PENDING HUMAN APPROVAL)
 
 ## Completed Checkpoints
-- None
+- C0.1
 
 ## Active Work
-Establishing execution substrate and repository baseline.
+Establishing explicit change-control mechanism.
 
 ## Active Branch
-bootstrap-execution-substrate
+checkpoint/C0.2-change-control-baseline
 
 ## Active Issue
 None
@@ -43,14 +43,13 @@ None
 None
 
 ## Required Approvals
-- Checkpoint C0.1 (Owner Approval Required)
 - Checkpoint C0.2 (Owner Approval Required)
 
 ## Latest Validation
-VR-001
+VR-002
 
 ## Repository State
-Clean baseline establishing execution substrate with C0.1 artifacts.
+Clean baseline establishing execution substrate with C0.1 artifacts. Change-control templates created.
 
 ## Known Defects
 None
@@ -59,7 +58,7 @@ None
 None
 
 ## Next Permitted Action
-Wait for owner approval for C0.1.
+Wait for owner approval for C0.2.
 
 ## Forbidden Next Actions
 - Do not implement Phase 1.

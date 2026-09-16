@@ -6,7 +6,7 @@ Phase:
 Phase 0
 
 Status:
-IN PROGRESS
+REVIEW (PENDING HUMAN APPROVAL)
 
 Issue:
 None
@@ -38,6 +38,9 @@ VR-001
 
 Human Approval:
 PENDING
+
+Blockers:
+Waiting for human approval for C0.1.
 
 Evidence:
 None

@@ -51,6 +51,10 @@ Cross-document consistency review
 
 ## Repository State
 Baseline documentation created, waiting for review.
+VR-001
+
+## Repository State
+Clean baseline establishing execution substrate with C0.1 artifacts.
 
 ## Known Defects
 None

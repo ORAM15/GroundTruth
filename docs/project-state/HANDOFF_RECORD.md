@@ -1,36 +1,32 @@
 # GROUNDTRUTH HANDOFF RECORD
 
 ## Handoff ID
-HO-20260902-001
+HO-20260911-001
 
 ## Generated
-
+2026-09-11
 
 ## Project State
-The repository has been initialized with the execution substrate for autonomous agents. We are currently in Phase 0, establishing the project baseline.
+The repository has been initialized with the execution substrate for autonomous agents. C0.1 is complete. We are currently in Phase 0, executing C0.2 to establish change-control baseline.
 
 ## Current Phase
 Phase 0
 
 ## Current Checkpoint
-C0.1
+C0.2
 
 ## Checkpoint Status
-IN PROGRESS
+REVIEW (PENDING HUMAN APPROVAL)
 
 ## What Has Been Completed
-Created the execution substrate documents:
-- AGENTS.md
-- docs/project-state/PROJECT_STATE.md
-- docs/project-state/CHECKPOINT_LOG.md
-- docs/project-state/DECISION_LOG.md
-- docs/project-state/VALIDATION_RECORD.md
-- docs/project-state/HANDOFF_RECORD.md
-- docs/autonomy/AUTONOMOUS_EXECUTION_CONTRACT.md
-- docs/autonomy/JULES_INVOCATION.md
+Created the change-control templates:
+- `.github/ISSUE_TEMPLATE/CHANGE_REQUEST_TEMPLATE.md`
+- `.github/ISSUE_TEMPLATE/ADR_TEMPLATE.md`
+- `.github/ISSUE_TEMPLATE/CHECKPOINT_TEMPLATE.md`
+Updated project state documents to reflect C0.1 completion and C0.2 progress.
 
 ## What Is Currently Being Worked On
-Executing Checkpoint C0.1: Repository Baseline.
+Executing Checkpoint C0.2: Change-Control Baseline.
 
 ## What Is Blocked
 None
@@ -42,15 +38,15 @@ None
 None
 
 ## Required Human Approvals
-- Checkpoint C0.1 requires Project Owner approval.
+- Checkpoint C0.2 requires Project Owner approval.
 
 ## Latest Validation
-None
+VR-002
 
 ## Repository State
-Branch: bootstrap-execution-substrate
+Branch: checkpoint/C0.2-change-control-baseline
 Commit: Pending PR creation.
-Working tree: Substrate documents added.
+Working tree: Change-control templates added.
 Relevant PR: Pending.
 Relevant Issue: None.
 
@@ -61,18 +57,18 @@ None
 None
 
 ## Important Recent Changes
-Established the execution substrate based on the frozen foundation documents.
+Established the change-control baseline templates.
 
 ## What Must NOT Be Changed
 Do not modify the frozen foundation documents. Do not jump ahead to Phase 1. Do not introduce arbitrary dependencies or code architectures not approved by the foundation.
 
 ## Next Permitted Action
-Complete the initial execution substrate and submit for review.
+Wait for owner approval for C0.2.
 
 ## Resume Instructions
 1. Inspect Git state.
 2. Read PROJECT_STATE.md and HANDOFF_RECORD.md to confirm consistency.
-3. Proceed with executing Checkpoint C0.1 if authorized, or wait for review of the execution substrate.
+3. Proceed with executing Phase 1 (C1.1) if authorized, or wait for review of the change-control baseline.
 
 ## Authoritative References
 - Project Constitution

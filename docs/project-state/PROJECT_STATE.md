@@ -4,9 +4,10 @@
 GroundTruth
 
 ## State Version
-1.0
+1.1
 
 ## Last Updated
+$(date -u +"%Y-%m-%d %H:%M UTC")
 2026-09-05 06:35 UTC
 2026-09-04 06:25 UTC
 
@@ -24,6 +25,7 @@ REVIEW
 - None (C0.1 is in review)
 
 ## Active Work
+Executing Checkpoint C0.1: Repository Baseline.
 Waiting for C0.1 repository baseline approval.
 Waiting for review on repository baseline.
 
@@ -57,6 +59,7 @@ Baseline documentation created, waiting for review.
 VR-001
 
 ## Repository State
+Baseline documentation established.
 Clean baseline establishing execution substrate with C0.1 artifacts.
 
 ## Known Defects
@@ -66,6 +69,7 @@ None
 None
 
 ## Next Permitted Action
+Await human approval for Checkpoint C0.1.
 Wait for project owner to approve the C0.1 repository baseline. Do not start C0.2 until approved.
 Wait for owner approval for C0.1.
 
@@ -73,6 +77,7 @@ Wait for owner approval for C0.1.
 - Do not implement Phase 1.
 - Do not modify or merge main.
 - Do not fabricate implementation code.
+- Do not proceed to C0.2 without C0.1 approval.
 
 ## State Authority
 Final Master Phase Plan v1.0

@@ -7,6 +7,7 @@ GroundTruth
 1.0
 
 ## Last Updated
+2026-09-05 06:35 UTC
 2026-09-04 06:25 UTC
 
 ## Current Phase
@@ -16,12 +17,14 @@ Phase 0 — Project Foundation
 C0.1 — Repository Baseline
 
 ## Checkpoint Status
+REVIEW (PENDING HUMAN APPROVAL)
 REVIEW
 
 ## Completed Checkpoints
-- None
+- None (C0.1 is in review)
 
 ## Active Work
+Waiting for C0.1 repository baseline approval.
 Waiting for review on repository baseline.
 
 ## Active Branch
@@ -31,7 +34,7 @@ checkpoint/C0.1-repository-baseline
 None
 
 ## Active PR
-None
+Pending Creation
 
 ## Blocked Work
 None
@@ -63,6 +66,7 @@ None
 None
 
 ## Next Permitted Action
+Wait for project owner to approve the C0.1 repository baseline. Do not start C0.2 until approved.
 Wait for owner approval for C0.1.
 
 ## Forbidden Next Actions

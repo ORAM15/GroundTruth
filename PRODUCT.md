@@ -1,3 +1,7 @@
+# Product
+
+This document delegates to the authoritative foundation document:
+- [Project Constitution](Foundation-GroundTruth/groundtruth-constitution.md)
 # PRODUCT DEFINITION
 
 ## 1. Project Identity

@@ -64,6 +64,7 @@ Baseline documentation created, waiting for review.
 VR-001
 
 ## Repository State
+Baseline documentation pointer files created.
 Baseline documentation established.
 Clean baseline establishing execution substrate with C0.1 artifacts.
 

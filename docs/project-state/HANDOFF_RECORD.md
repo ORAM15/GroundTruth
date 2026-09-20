@@ -81,6 +81,7 @@ Created the execution substrate documents:
 - docs/project-state/HANDOFF_RECORD.md
 - docs/autonomy/AUTONOMOUS_EXECUTION_CONTRACT.md
 - docs/autonomy/JULES_INVOCATION.md
+Created root index documents pointing to foundation:
 - THREAT_MODEL.md
 - DEVELOPMENT.md
 
@@ -90,6 +91,14 @@ Created the repository baseline documents (C0.1):
 - ARCHITECTURE.md
 - TECHNOLOGY.md
 - EVALUATION.md
+- THREAT_MODEL.md
+- DEVELOPMENT.md
+
+## What Is Currently Being Worked On
+None - waiting for human approval for C0.1.
+
+## What Is Blocked
+Checkpoint C0.1 is complete but blocked pending human approval.
 - DEVELOPMENT.md
 - THREAT_MODEL.md
 
@@ -123,6 +132,7 @@ Cross-document consistency review
 ## Repository State
 Branch: checkpoint/C0.1-repository-baseline
 Commit: Pending PR creation.
+Working tree: Substrate documents and root index documents added.
 Working tree: Baseline documents added. State updated.
 Working tree: Baseline documents added.
 Working tree: Repository baseline added.
@@ -145,6 +155,7 @@ Established the repository baseline based on the frozen foundation documents.
 Do not modify the frozen foundation documents. Do not jump ahead to Phase 1. Do not introduce arbitrary dependencies or code architectures not approved by the foundation. Do not proceed to C0.2 until C0.1 is approved.
 
 ## Next Permitted Action
+Await human approval for Checkpoint C0.1 before proceeding to C0.2.
 Wait for project owner review of C0.1.
 Await human approval for Checkpoint C0.1.
 Wait for human approval of C0.1 and merge of PR before proceeding to C0.2.
@@ -153,6 +164,8 @@ Wait for owner approval of C0.1.
 ## Resume Instructions
 1. Inspect Git state.
 2. Read PROJECT_STATE.md and HANDOFF_RECORD.md to confirm consistency.
+3. Verify if human approval for C0.1 has been granted.
+4. If approved, proceed with C0.2. If not, wait.
 3. Wait for C0.1 approval, or proceed with C0.2 if authorized.
 3. If C0.1 is approved, proceed to C0.2. Otherwise, stop.
 3. If PR for C0.1 is merged and approved, begin planning for C0.2. Otherwise, wait.

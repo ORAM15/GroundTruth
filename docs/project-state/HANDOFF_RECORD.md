@@ -17,6 +17,9 @@ C0.1
 
 ## Checkpoint Status
 REVIEW (PENDING HUMAN APPROVAL)
+
+## What Has Been Completed
+Migrated foundational documents to repository root:
 REVIEW
 
 ## What Has Been Completed
@@ -27,6 +30,18 @@ Created the repository baseline documents based on the frozen foundation documen
 - ARCHITECTURE.md
 - TECHNOLOGY.md
 - EVALUATION.md
+- DEVELOPMENT.md
+- THREAT_MODEL.md
+
+Created the execution substrate documents:
+- AGENTS.md
+- docs/project-state/PROJECT_STATE.md
+- docs/project-state/CHECKPOINT_LOG.md
+- docs/project-state/DECISION_LOG.md
+- docs/project-state/VALIDATION_RECORD.md
+- docs/project-state/HANDOFF_RECORD.md
+- docs/autonomy/AUTONOMOUS_EXECUTION_CONTRACT.md
+- docs/autonomy/JULES_INVOCATION.md
 - THREAT_MODEL.md
 - DEVELOPMENT.md
 

@@ -1,9 +1,22 @@
 # PRODUCT DEFINITION
 
 ## 1. Project Identity
+PROJECT CONSTITUTION — DRAFT
+
+Project: GroundTruth
+Document status: Draft / forensic reconstruction
+Purpose: Establish an evidence-based baseline before requirements and architecture are finalized.
+
+Important: This is a reconstruction, not a redesign. I am deliberately separating what is actually established from what was merely proposed. Where the project history contains a conflict, I preserve it rather than silently resolving it.
+
+1. Project Identity
+FACT
+
 GroundTruth is the name of the project.
 
 It is intended to become a production-grade, trustworthy RAG answer engine rather than a conventional chatbot. The project description explicitly rejects the idea of GroundTruth becoming "another PDF chatbot."
+
+FACT
 
 The central product concept is:
 
@@ -12,6 +25,13 @@ A trustworthy RAG answer engine that can determine whether answers are supported
 GroundTruth is one of the user's primary serious AI portfolio projects.
 
 ## 2. Problem Being Solved
+FACT
+
+GroundTruth is one of the user's primary serious AI portfolio projects.
+
+2. Problem Being Solved
+FACT
+
 The project identifies a problem with large document collections: useful information is difficult for humans to search, understand, locate precisely, compare, and verify.
 
 GroundTruth is intended to let users ask natural-language questions and receive:
@@ -29,6 +49,17 @@ The precise initial business/domain problem has not yet been selected. We do not
 ## 3. Target Users
 The project is intended for real users and should behave like a real SaaS product rather than a college demonstration.
 
+UNKNOWN
+
+The precise initial business/domain problem has not yet been selected. We do not yet have an officially designated industry, organization, or corpus.
+
+3. Target Users
+FACT
+
+The project is intended for real users and should behave like a real SaaS product rather than a college demonstration.
+
+FACT
+
 The established workflow implies users who possess or need to query controlled collections of documents.
 
 PROPOSAL
@@ -41,6 +72,8 @@ technical users who care about evidence
 
 These were reasonable user hypotheses, but they were not formally approved user personas.
 
+UNKNOWN
+
 We do not yet have:
 
 formally approved personas
@@ -49,6 +82,9 @@ validated user pain points
 user volume assumptions
 organizational buyer/user distinctions.
 ## 4. Intended User Experience
+4. Intended User Experience
+FACT
+
 The intended experience includes:
 
 Create/access knowledge collection
@@ -78,6 +114,21 @@ The product should include professional UX qualities including loading states, e
 The final UI, interaction design, navigation structure, and exact citation presentation have not been approved.
 
 ## 5. Core Product Vision
+FACT
+
+Citations should provide useful source information such as document, page, section, or chunk/context, and should not be fabricated.
+
+FACT
+
+The product should include professional UX qualities including loading states, error states, empty states, retry behavior, validation, responsive design, accessibility, clear citations, feedback, document status, and graceful failure.
+
+UNKNOWN
+
+The final UI, interaction design, navigation structure, and exact citation presentation have not been approved.
+
+5. Core Product Vision
+FACT
+
 GroundTruth's core vision is a knowledge system that:
 
 uses controlled knowledge sources
@@ -88,6 +139,8 @@ recognizes insufficient evidence
 evaluates retrieval and answer quality
 defends against malicious content.
 
+FACT
+
 Trustworthiness is the defining product characteristic.
 
 DECISION
@@ -95,6 +148,9 @@ DECISION
 The project should not be developed as a generic chatbot or simplistic PDF Q&A application. This exclusion is explicitly established.
 
 ## 6. Primary Objectives
+6. Primary Objectives
+FACT
+
 The established objectives are to demonstrate:
 
 document ingestion
@@ -120,6 +176,17 @@ The project should be publicly deployed rather than remaining localhost-only.
 The project must produce measurable quality rather than relying on subjective claims that "it works." The Golden Dataset is intended to be central to this.
 
 ## 7. Secondary Objectives
+FACT
+
+The project should be publicly deployed rather than remaining localhost-only.
+
+FACT
+
+The project must produce measurable quality rather than relying on subjective claims that "it works." The Golden Dataset is intended to be central to this.
+
+7. Secondary Objectives
+FACT
+
 GroundTruth is also intended to demonstrate modern AI engineering and product thinking suitable for portfolio and interview use.
 
 The final project should support explanation of:
@@ -141,6 +208,8 @@ authentication
 deployment
 observability
 evaluation.
+
+FACT
 
 The project should produce measurable metrics rather than invented metrics.
 
@@ -175,9 +244,18 @@ Technology should not be selected merely because it is popular. This principle w
 Agents are not the product's defining requirement. GroundTruth is fundamentally a trustworthy RAG system.
 
 ## 9. Existing Implementation
+FACT
+
+Agents are not the product's defining requirement. GroundTruth is fundamentally a trustworthy RAG system.
+
+9. Existing Implementation
+FACT
+
 No production implementation has begun.
 
 The user explicitly stated that implementation has not begun, and the documented project workflow repeatedly says not to begin coding before requirements, trust definitions, evaluation, research, architecture, and experiments are established.
+
+UNKNOWN
 
 There is no verified evidence in the GroundTruth-specific material of:
 
@@ -196,11 +274,25 @@ GitHub is intended to be the source of truth for GroundTruth.
 
 The intended repository model is one canonical repository per serious project.
 
+10. Existing Repository State
+FACT
+
+GitHub is intended to be the source of truth for GroundTruth.
+
+FACT
+
+The intended repository model is one canonical repository per serious project.
+
+UNKNOWN
+
 The actual current GroundTruth repository, repository URL, branch, commit history, local directory, and current working-tree contents are not established by the available GroundTruth-specific evidence.
 
 We must inspect the actual repository before making repository-specific claims.
 
 ## 11. Existing Functionality
+11. Existing Functionality
+FACT
+
 No verified production functionality is established.
 
 PROPOSAL
@@ -234,6 +326,9 @@ malicious document
 These are planned implementation stages, not existing functionality.
 
 ## 12. Existing Technologies
+12. Existing Technologies
+FACT
+
 The project has established an AI-assisted development ecosystem, including:
 
 ChatGPT
@@ -249,11 +344,16 @@ Google Workspace.
 
 Their intended roles are explicitly documented.
 
+UNKNOWN
+
 No final production programming language, backend framework, frontend framework, database, vector database, embedding model, LLM, cloud provider, or deployment platform has been formally approved.
 
 This is important because an earlier discussion proposed technologies such as Next.js, FastAPI, PostgreSQL/pgvector and Supabase, but those were proposals, not approved decisions.
 
 ## 13. Existing Integrations
+13. Existing Integrations
+FACT
+
 The intended development workflow integrates:
 
 GitHub
@@ -263,6 +363,8 @@ Antigravity
 Jules
 
 with GitHub remaining the source of truth.
+
+FACT
 
 The broader Google environment includes:
 
@@ -283,6 +385,25 @@ Antigravity is intended to be the main implementation environment and Jules the 
 ## 14. Existing Limitations
 The project has not yet reached implementation, so there is currently no demonstrated production system.
 
+FACT
+
+Custom MCP/Spark integration has not been configured in the documented Google environment.
+
+FACT
+
+AI Studio is intended as the AI experimentation environment, not the actual GroundTruth production application.
+
+FACT
+
+Antigravity is intended to be the main implementation environment and Jules the bounded asynchronous worker.
+
+14. Existing Limitations
+FACT
+
+The project has not yet reached implementation, so there is currently no demonstrated production system.
+
+FACT
+
 There is not yet verified evidence for:
 
 retrieval accuracy
@@ -296,6 +417,11 @@ deployment reliability.
 Actual performance characteristics are completely unknown until experiments are conducted.
 
 ## 15. Future Ideas
+UNKNOWN
+
+Actual performance characteristics are completely unknown until experiments are conducted.
+
+15. Future Ideas
 PROPOSAL
 
 Potential future capabilities include:
@@ -323,6 +449,7 @@ The B.Tech syllabus has been identified as a potentially useful realistic corpus
 It has not been established as the final GroundTruth corpus.
 
 ## 16. Requirements
+16. Requirements
 FACT / DECISION
 
 The system is expected to support a real ingestion pipeline capable of:
@@ -402,6 +529,36 @@ GitHub is intended to remain the source of truth.
 Repository/project contexts must remain isolated; information from sibling projects must not silently become GroundTruth architecture or implementation.
 
 ## 18. Assumptions
+17. Constraints
+FACT
+
+The user is a student and wants free/low-cost infrastructure.
+
+FACT
+
+The system should not be overengineered.
+
+FACT
+
+Technology choices must be requirement-driven.
+
+FACT
+
+The project should use AI heavily for development, but AI must not replace engineering understanding.
+
+FACT
+
+Generated code must be tested, verified, reviewed, and understood before being treated as trustworthy.
+
+FACT
+
+GitHub is intended to remain the source of truth.
+
+FACT
+
+Repository/project contexts must remain isolated; information from sibling projects must not silently become GroundTruth architecture or implementation.
+
+18. Assumptions
 ASSUMPTION / OPEN QUESTION
 
 The system will probably initially operate on a relatively bounded document corpus rather than internet-scale data, but the actual scale has not been formally specified.
@@ -413,6 +570,8 @@ The first implementation should be incremental and experimental rather than a co
 ASSUMPTION
 
 The system will need some form of persistent document/chunk/evaluation storage, but the actual storage technology is not decided.
+
+UNKNOWN
 
 Exact expected:
 
@@ -428,6 +587,7 @@ budget.
 These must eventually be specified.
 
 ## 19. Decisions Already Explicitly Approved
+19. Decisions Already Explicitly Approved
 
 The following are the strongest currently established decisions.
 
@@ -480,6 +640,7 @@ DECISION 12
 Reranking remains optional until experiments demonstrate sufficient value.
 
 ## 20. Proposals That Were Never Approved
+20. Proposals That Were Never Approved
 
 This section is important because earlier conversations contained many concrete technical suggestions.
 
@@ -536,6 +697,7 @@ PROPOSAL — LangChain/LangGraph
 Explicitly not to be adopted blindly.
 
 ## 21. Unknowns
+21. Unknowns
 
 The most important unknowns are:
 
@@ -565,6 +727,9 @@ Observability implementation.
 Actual repository state.
 Whether a working prototype exists outside the evidence currently available.
 ## 22. Risks
+22. Risks
+FACT
+
 The project explicitly recognizes these risks:
 
 Hallucination / unsupported answers
@@ -600,6 +765,9 @@ False confidence from subjective demos
 → mitigated through the Golden Dataset and measurable evaluation.
 
 ## 23. Dependencies
+23. Dependencies
+FACT
+
 GroundTruth depends conceptually on:
 
 Product definition
@@ -620,6 +788,8 @@ Implementation
 
 This order is explicitly established in the project's methodology.
 
+FACT
+
 The development ecosystem depends on:
 
 GitHub as source of truth
@@ -631,6 +801,13 @@ testing/evaluation before accepting changes.
 Actual third-party production dependencies have not yet been selected.
 
 ## 24. Success Criteria
+UNKNOWN
+
+Actual third-party production dependencies have not yet been selected.
+
+24. Success Criteria
+FACT
+
 The final definition of done requires much more than:
 
 frontend renders + API responds + one PDF can be queried.
@@ -655,9 +832,13 @@ professional UI
 GitHub documentation
 portfolio presentation
 interview-ready architectural understanding.
+FACT
+
 The ultimate qualitative success criterion is:
 
 Would a real user trust this enough to use it?
+
+UNKNOWN
 
 No quantitative acceptance thresholds have yet been established.
 
@@ -729,6 +910,7 @@ We also need the initial corpus, user, scale, latency/cost requirements and eval
 
 Contradictions
 ## 1. Technology stack
+1. Technology stack
 
 Earlier discussion proposed a concrete stack such as Next.js/FastAPI/PostgreSQL/pgvector/Supabase/Vercel/Render.
 
@@ -737,6 +919,7 @@ The later methodology explicitly states that technology choices must not be made
 Resolution status: The concrete stack remains PROPOSAL, not DECISION.
 
 ## 2. Reranking
+2. Reranking
 
 Some architectural diagrams show:
 
@@ -749,6 +932,7 @@ while the retrieval research explicitly states that reranking remains optional u
 Resolution: Treat reranking as PROPOSAL / experiment candidate, not mandatory architecture.
 
 ## 3. Hybrid retrieval
+3. Hybrid retrieval
 
 The project description frequently uses "hybrid retrieval," while the retrieval research explicitly says hybrid retrieval is a leading candidate, not a locked decision.
 

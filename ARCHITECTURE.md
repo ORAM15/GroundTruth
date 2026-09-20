@@ -1,3 +1,7 @@
+# ARCHITECTURE SPECIFICATION
+
+
+## 0. Architectural Position
 FINAL ARCHITECTURE SPECIFICATION
 
 Project: GroundTruth
@@ -35,6 +39,7 @@ That is deliberate—not uncertainty hidden as architecture.
 
 The retrieval research already establishes that dense and lexical retrieval must be benchmarked, while hybrid retrieval remains a candidate and reranking remains conditional on evaluation.
 
+## 1. System Context
 1. System Context
 
 GroundTruth exists between a user and a controlled knowledge collection.
@@ -155,6 +160,7 @@ GroundTruth remains responsible for deciding whether a user is allowed to access
                  └────────────────────┘
 
         * only retained if evaluation justifies it
+## 3. Component Architecture
 3. Component Architecture
 
 GroundTruth will be internally modular.
@@ -255,6 +261,7 @@ apply collection/resource constraints
 combine retrieval signals where justified
 rank evidence
 return provenance-rich results.
+## 4. Data Architecture
 4. Data Architecture
 
 The conceptual data model is:
@@ -290,6 +297,7 @@ EVALUATION DATASET
        ├── Expected Answer Characteristics
        ├── Abstention Cases
        └── Adversarial Cases
+## 5. Application Architecture
 5. Application Architecture
 
 The application follows a layered model:
@@ -324,6 +332,7 @@ specific vendor SDK
 
 This is particularly important for AI services.
 
+## 6. Integration Architecture
 6. Integration Architecture
 
 External integrations are isolated behind interfaces.
@@ -340,6 +349,7 @@ External integrations are isolated behind interfaces.
 
 The application should not allow provider-specific objects to leak throughout the domain/application layers.
 
+## 7. Security Architecture
 7. Security Architecture
 
 The security model follows:
@@ -452,6 +462,7 @@ The LLM is not the knowledge source.
 
 The knowledge source is the retrieved evidence.
 
+## 10. Storage Architecture
 10. Storage Architecture
 
 Storage has two conceptual classes.
@@ -482,6 +493,7 @@ derived searchable representation.
 
 This allows a chunk to remain traceable to the original source.
 
+## 11. API Architecture
 11. API Architecture
 
 The API is resource-oriented.
@@ -504,6 +516,7 @@ request schemas are validated
 errors are structured
 internal implementation details are not exposed unnecessarily
 AI-provider-specific API structures do not become public contracts.
+## 12. Deployment Architecture
 12. Deployment Architecture
 
 The deployment architecture is intentionally simple:
@@ -533,6 +546,7 @@ Those are NOT REQUIRED by the current requirements.
 
 The exact cloud/deployment providers remain unresolved because workload, cost and infrastructure experiments have not yet established them.
 
+## 13. Observability Architecture
 13. Observability Architecture
 
 Observability follows the request lifecycle.
@@ -568,6 +582,7 @@ Request ID
 
 Sensitive data should not automatically be logged merely because it is available.
 
+## 14. Testing Architecture
 14. Testing Architecture
 
 Testing has two distinct dimensions.
@@ -659,6 +674,7 @@ Citation cannot be validated
 Do not present fabricated citation
        ↓
 Reject / regenerate / abstain according to validated policy
+## 16. Trust Boundaries
 16. Trust Boundaries
 
 There are several important trust boundaries.
@@ -713,6 +729,7 @@ User B's Collection
 
 Cross-user access must be rejected.
 
+## 17. Primary Data Flows
 17. Primary Data Flows
 Flow A — Document ingestion
 User
@@ -769,6 +786,7 @@ Lexical Retrieval ──┘
              │
              ▼
           Citations
+## 18. Control Flows
 18. Control Flows
 
 There are three important control flows.
@@ -816,6 +834,7 @@ Accept / Reject Change
 
 This prevents "it feels better" from becoming the evaluation methodology.
 
+## 19. External Dependencies
 19. External Dependencies
 
 At the architecture level, GroundTruth requires these categories of external dependency:
@@ -833,6 +852,7 @@ Distributed message broker	NOT REQUIRED	No established scale requirement
 Kubernetes	NOT REQUIRED	No established operational requirement
 Redis/cache	NOT REQUIRED	No measured bottleneck justifying it
 Agent orchestration framework	NOT REQUIRED	Not part of GroundTruth's core product requirements
+## 20. Internal Interfaces
 20. Internal Interfaces
 
 The architecture requires stable conceptual interfaces between major responsibilities.
@@ -885,6 +905,7 @@ validate(
 
 The exact programming-language syntax is implementation-specific.
 
+## 21. Component Responsibilities
 21. Component Responsibilities
 Component	Responsibility	Must NOT own
 Web Client	User interaction	Authorization decisions
@@ -906,6 +927,7 @@ Trust Validator	Assess support/safety/citations	Document storage
 Citation Resolver	Map claims/evidence to sources	Generate unsupported sources
 Evaluation	Measure system behavior	Modify production behavior implicitly
 Observability	Record operational diagnostics	Business decisions
+## 22. Major Architectural Invariants
 22. Major Architectural Invariants
 
 These are the rules that must remain true regardless of implementation technology.
@@ -954,6 +976,7 @@ INV-010 — AI-generated code is not automatically trusted
 
 Implementation must be verified through testing/review.
 
+## 23. Major Architectural Decisions
 23. Major Architectural Decisions
 AD-001 — Modular application rather than microservices
 Decision
@@ -1312,6 +1335,7 @@ Technology classification: APPROVED DECISION — provider-neutral deployment arc
 
 Specific provider: OPEN QUESTION.
 
+## 24. Technology Decision Register
 24. Technology Decision Register
 
 This is the definitive technology status at architecture freeze.
@@ -1341,6 +1365,7 @@ This is an intentional result of the architecture review.
 
 Architecture is final; unproven vendor choices are not being fabricated into decisions.
 
+## 25. Architectural Constraints
 25. Architectural Constraints
 
 These constraints are now frozen.
@@ -1397,6 +1422,7 @@ AC-013
 
 Architecture changes require explicit owner approval.
 
+## 26. Architecture Consistency Audit
 26. Architecture Consistency Audit
 
 Now we test the architecture against the requirements, rather than merely presenting an architecture diagram.
@@ -1445,6 +1471,7 @@ PASS — architectural requirements are covered.
 
 There are no identified mandatory requirements that require an architectural component absent from the specification.
 
+## 27. Architecture Completeness Audit
 27. Architecture Completeness Audit
 
 We can also test the architecture against the requested architecture dimensions.
@@ -1475,6 +1502,7 @@ We can also test the architecture against the requested architecture dimensions.
 
 Architecture specification: COMPLETE.
 
+## 28. Final Architecture in One Diagram
 28. Final Architecture in One Diagram
 
 This is the diagram I would consider the canonical GroundTruth architecture:
@@ -1564,6 +1592,7 @@ This is the diagram I would consider the canonical GroundTruth architecture:
               └────────────────────────────────┘
 
 * conditional on evaluation
+## 29. Architecture Freeze
 29. Architecture Freeze
 FINAL DECISIONS
 

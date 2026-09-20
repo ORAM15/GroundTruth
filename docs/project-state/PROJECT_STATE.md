@@ -25,6 +25,7 @@ REVIEW
 - None (C0.1 is in review)
 
 ## Active Work
+Waiting for human approval of Checkpoint C0.1 - Repository Baseline.
 Executing Checkpoint C0.1: Repository Baseline.
 Waiting for C0.1 repository baseline approval.
 Waiting for review on repository baseline.
@@ -52,6 +53,10 @@ None
 - Checkpoint C0.2 (Owner Approval Required)
 
 ## Latest Validation
+Validation of cross-document consistency completed for C0.1.
+
+## Repository State
+Clean baseline establishing execution substrate and baseline documents.
 Cross-document consistency review
 
 ## Repository State
@@ -69,6 +74,7 @@ None
 None
 
 ## Next Permitted Action
+Wait for project owner review of C0.1.
 Await human approval for Checkpoint C0.1.
 Wait for project owner to approve the C0.1 repository baseline. Do not start C0.2 until approved.
 Wait for owner approval for C0.1.

@@ -1,3 +1,6 @@
+# PRODUCT DEFINITION
+
+## 1. Project Identity
 PROJECT CONSTITUTION — DRAFT
 
 Project: GroundTruth
@@ -19,6 +22,9 @@ The central product concept is:
 
 A trustworthy RAG answer engine that can determine whether answers are supported by retrieved evidence, cite that evidence, and abstain when evidence is insufficient.
 
+GroundTruth is one of the user's primary serious AI portfolio projects.
+
+## 2. Problem Being Solved
 FACT
 
 GroundTruth is one of the user's primary serious AI portfolio projects.
@@ -37,6 +43,11 @@ appropriate confidence/grounding information
 an honest insufficient-evidence response when necessary.
 
 The underlying requirement is explicitly about trust in AI-generated answers, not merely question answering.
+
+The precise initial business/domain problem has not yet been selected. We do not yet have an officially designated industry, organization, or corpus.
+
+## 3. Target Users
+The project is intended for real users and should behave like a real SaaS product rather than a college demonstration.
 
 UNKNOWN
 
@@ -70,6 +81,7 @@ user interviews
 validated user pain points
 user volume assumptions
 organizational buyer/user distinctions.
+## 4. Intended User Experience
 4. Intended User Experience
 FACT
 
@@ -95,6 +107,13 @@ Provide feedback
 
 This workflow is explicitly established.
 
+Citations should provide useful source information such as document, page, section, or chunk/context, and should not be fabricated.
+
+The product should include professional UX qualities including loading states, error states, empty states, retry behavior, validation, responsive design, accessibility, clear citations, feedback, document status, and graceful failure.
+
+The final UI, interaction design, navigation structure, and exact citation presentation have not been approved.
+
+## 5. Core Product Vision
 FACT
 
 Citations should provide useful source information such as document, page, section, or chunk/context, and should not be fabricated.
@@ -128,6 +147,7 @@ DECISION
 
 The project should not be developed as a generic chatbot or simplistic PDF Q&A application. This exclusion is explicitly established.
 
+## 6. Primary Objectives
 6. Primary Objectives
 FACT
 
@@ -151,6 +171,11 @@ testing
 deployment
 professional UX.
 
+The project should be publicly deployed rather than remaining localhost-only.
+
+The project must produce measurable quality rather than relying on subjective claims that "it works." The Golden Dataset is intended to be central to this.
+
+## 7. Secondary Objectives
 FACT
 
 The project should be publicly deployed rather than remaining localhost-only.
@@ -216,6 +241,9 @@ DECISION
 
 Technology should not be selected merely because it is popular. This principle was explicitly reinforced in the latest pre-implementation discussion.
 
+Agents are not the product's defining requirement. GroundTruth is fundamentally a trustworthy RAG system.
+
+## 9. Existing Implementation
 FACT
 
 Agents are not the product's defining requirement. GroundTruth is fundamentally a trustworthy RAG system.
@@ -241,6 +269,11 @@ a public GroundTruth application.
 
 Therefore none of these should be described as implemented.
 
+## 10. Existing Repository State
+GitHub is intended to be the source of truth for GroundTruth.
+
+The intended repository model is one canonical repository per serious project.
+
 10. Existing Repository State
 FACT
 
@@ -256,6 +289,7 @@ The actual current GroundTruth repository, repository URL, branch, commit histor
 
 We must inspect the actual repository before making repository-specific claims.
 
+## 11. Existing Functionality
 11. Existing Functionality
 FACT
 
@@ -291,6 +325,7 @@ malicious document
 
 These are planned implementation stages, not existing functionality.
 
+## 12. Existing Technologies
 12. Existing Technologies
 FACT
 
@@ -315,6 +350,7 @@ No final production programming language, backend framework, frontend framework,
 
 This is important because an earlier discussion proposed technologies such as Next.js, FastAPI, PostgreSQL/pgvector and Supabase, but those were proposals, not approved decisions.
 
+## 13. Existing Integrations
 13. Existing Integrations
 FACT
 
@@ -339,6 +375,15 @@ GitHub
 Canva
 
 as connected services in the documented workstation setup.
+
+Custom MCP/Spark integration has not been configured in the documented Google environment.
+
+AI Studio is intended as the AI experimentation environment, not the actual GroundTruth production application.
+
+Antigravity is intended to be the main implementation environment and Jules the bounded asynchronous worker.
+
+## 14. Existing Limitations
+The project has not yet reached implementation, so there is currently no demonstrated production system.
 
 FACT
 
@@ -369,6 +414,9 @@ latency
 cost/query
 security robustness
 deployment reliability.
+Actual performance characteristics are completely unknown until experiments are conducted.
+
+## 15. Future Ideas
 UNKNOWN
 
 Actual performance characteristics are completely unknown until experiments are conducted.
@@ -400,6 +448,7 @@ The B.Tech syllabus has been identified as a potentially useful realistic corpus
 
 It has not been established as the final GroundTruth corpus.
 
+## 16. Requirements
 16. Requirements
 FACT / DECISION
 
@@ -464,6 +513,22 @@ FACT / DECISION
 
 The final system must be publicly deployed.
 
+## 17. Constraints
+The user is a student and wants free/low-cost infrastructure.
+
+The system should not be overengineered.
+
+Technology choices must be requirement-driven.
+
+The project should use AI heavily for development, but AI must not replace engineering understanding.
+
+Generated code must be tested, verified, reviewed, and understood before being treated as trustworthy.
+
+GitHub is intended to remain the source of truth.
+
+Repository/project contexts must remain isolated; information from sibling projects must not silently become GroundTruth architecture or implementation.
+
+## 18. Assumptions
 17. Constraints
 FACT
 
@@ -521,6 +586,7 @@ budget.
 
 These must eventually be specified.
 
+## 19. Decisions Already Explicitly Approved
 19. Decisions Already Explicitly Approved
 
 The following are the strongest currently established decisions.
@@ -573,6 +639,7 @@ DECISION 12
 
 Reranking remains optional until experiments demonstrate sufficient value.
 
+## 20. Proposals That Were Never Approved
 20. Proposals That Were Never Approved
 
 This section is important because earlier conversations contained many concrete technical suggestions.
@@ -629,6 +696,7 @@ PROPOSAL — LangChain/LangGraph
 
 Explicitly not to be adopted blindly.
 
+## 21. Unknowns
 21. Unknowns
 
 The most important unknowns are:
@@ -658,6 +726,7 @@ Deployment infrastructure.
 Observability implementation.
 Actual repository state.
 Whether a working prototype exists outside the evidence currently available.
+## 22. Risks
 22. Risks
 FACT
 
@@ -695,6 +764,7 @@ False confidence from subjective demos
 
 → mitigated through the Golden Dataset and measurable evaluation.
 
+## 23. Dependencies
 23. Dependencies
 FACT
 
@@ -728,6 +798,9 @@ AI Studio for AI experiments
 Antigravity for primary implementation
 Jules for bounded asynchronous tasks
 testing/evaluation before accepting changes.
+Actual third-party production dependencies have not yet been selected.
+
+## 24. Success Criteria
 UNKNOWN
 
 Actual third-party production dependencies have not yet been selected.
@@ -836,6 +909,7 @@ How do we measure each?
 We also need the initial corpus, user, scale, latency/cost requirements and evaluation thresholds.
 
 Contradictions
+## 1. Technology stack
 1. Technology stack
 
 Earlier discussion proposed a concrete stack such as Next.js/FastAPI/PostgreSQL/pgvector/Supabase/Vercel/Render.
@@ -844,6 +918,7 @@ The later methodology explicitly states that technology choices must not be made
 
 Resolution status: The concrete stack remains PROPOSAL, not DECISION.
 
+## 2. Reranking
 2. Reranking
 
 Some architectural diagrams show:
@@ -856,6 +931,7 @@ while the retrieval research explicitly states that reranking remains optional u
 
 Resolution: Treat reranking as PROPOSAL / experiment candidate, not mandatory architecture.
 
+## 3. Hybrid retrieval
 3. Hybrid retrieval
 
 The project description frequently uses "hybrid retrieval," while the retrieval research explicitly says hybrid retrieval is a leading candidate, not a locked decision.

@@ -6,13 +6,13 @@ Phase:
 Phase 0
 
 Status:
-IN PROGRESS
+REVIEW
 
 Issue:
 None
 
 Branch:
-bootstrap-execution-substrate
+checkpoint/C0.1-repository-baseline
 
 PR:
 None
@@ -34,6 +34,7 @@ Acceptance Criteria:
 - [x] architecture matches requirements
 
 Validation:
+Cross-document consistency review
 VR-001
 
 Human Approval:

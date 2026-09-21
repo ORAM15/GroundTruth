@@ -1,3 +1,18 @@
+# Requirements
+For project requirements, please refer to [Foundation-GroundTruth/groundtruth-requirements-and-constraints.md](Foundation-GroundTruth/groundtruth-requirements-and-constraints.md).
+# REQUIREMENTS
+
+The authoritative requirements and constraints are maintained in the frozen foundation documentation.
+
+See: [Foundation-GroundTruth/groundtruth-requirements-and-constraints.md](Foundation-GroundTruth/groundtruth-requirements-and-constraints.md)
+# Requirements
+
+This document delegates to the authoritative foundation document:
+- [Requirements and Constraints Specification](Foundation-GroundTruth/groundtruth-requirements-and-constraints.md)
+# REQUIREMENTS AND CONSTRAINTS SPECIFICATION
+
+
+## 0. Requirement Classification
 REQUIREMENTS AND CONSTRAINTS SPECIFICATION
 
 Project: GroundTruth
@@ -20,6 +35,7 @@ DEFERRED — Relevant to the longer-term target, but intentionally not required 
 
 A requirement marked DEFERRED is not a current implementation commitment.
 
+## 1. Functional Requirements
 1. Functional Requirements
 ID	Requirement	Reason	Priority	Source	Acceptance interpretation
 FR-001	The system SHALL allow a user to create or access a knowledge collection.	GroundTruth operates over controlled knowledge collections.	MANDATORY	Constitution — Product / UX	A user can access a defined collection of knowledge sources.
@@ -47,6 +63,7 @@ NFR-003	The system SHALL provide clear validation and error feedback.	Users must
 NFR-004	The system SHALL be testable at component and system levels appropriate to the implemented functionality.	Generated or complex AI systems cannot be trusted without verification.	MANDATORY	Testing Requirements	Critical functionality has repeatable automated/manual verification.
 NFR-005	The system SHALL expose sufficient information to diagnose important request failures.	Operational debugging requires visibility into system behavior.	IMPORTANT	Observability Requirements	Important failures can be investigated from recorded diagnostic information.
 NFR-006	The system SHOULD minimize unnecessary infrastructure and implementation complexity.	The project explicitly rejects overengineering.	MANDATORY	Development Philosophy	Every major complexity has a documented product/engineering justification.
+## 3. User Requirements
 3. User Requirements
 ID	Requirement	Reason	Priority	Source	Acceptance interpretation
 UR-001	A user SHALL be able to work with a controlled collection of knowledge sources.	GroundTruth is a controlled-knowledge system.	MANDATORY	Product Vision	User interaction is scoped to an identifiable knowledge collection.
@@ -55,6 +72,7 @@ UR-003	A user SHALL receive a concise answer when sufficient evidence exists.	Th
 UR-004	A user SHALL be able to inspect evidence supporting an answer.	Trust requires verification.	MANDATORY	Citations	Supporting source context can be inspected.
 UR-005	A user SHALL be informed when the system lacks sufficient evidence.	Preventing false confidence is mandatory.	MANDATORY	Abstention	Insufficient evidence produces an appropriate abstention response.
 UR-006	A user SHOULD receive understandable status information while documents are being processed.	Ingestion may not be instantaneous.	IMPORTANT	UX	Processing state is understandable without requiring technical knowledge.
+## 4. System Requirements
 4. System Requirements
 ID	Requirement	Reason	Priority	Source	Acceptance interpretation
 SYS-001	The system SHALL maintain a defined ingestion-to-answer lifecycle.	GroundTruth is a pipeline rather than a single model call.	MANDATORY	Core Architecture Concept	Documents and questions pass through identifiable processing stages.
@@ -62,6 +80,7 @@ SYS-002	The system SHALL maintain source lineage from document content to retrie
 SYS-003	The system SHALL separate retrieved document content from privileged system instructions.	Retrieved content is untrusted input.	MANDATORY	Security Requirements	Document text cannot automatically become system-level instructions.
 SYS-004	The system SHALL support persistent storage of information required by its implemented workflows.	The target is a real product rather than an ephemeral prototype.	MANDATORY	Product Target	Required state survives beyond an individual request/session where applicable.
 SYS-005	The system SHALL expose controlled interfaces between major system responsibilities.	Separation makes testing and maintenance possible.	IMPORTANT	Development Philosophy	Retrieval, ingestion, generation, evaluation and other responsibilities have identifiable boundaries.
+## 5. Security Requirements
 5. Security Requirements
 ID	Requirement	Reason	Priority	Source	Acceptance interpretation
 SEC-001	The system SHALL authenticate users where authenticated functionality is provided.	User identity is required to protect user-owned information.	MANDATORY	Security Requirements	Protected functionality cannot be accessed anonymously where authentication is required.
@@ -73,6 +92,7 @@ SEC-006	Secrets and API credentials SHALL not be exposed through source code or 
 SEC-007	The system SHALL validate user inputs relevant to security-sensitive operations.	Unvalidated inputs create avoidable attack surfaces.	MANDATORY	Security Requirements	Invalid/malicious inputs are rejected or safely handled.
 SEC-008	The system SHOULD apply rate limiting or equivalent abuse controls where required by the deployed workload.	Public AI systems can be abused and incur cost.	IMPORTANT	Security / Cost Requirements	The deployed system has an abuse-control mechanism appropriate to its actual exposure.
 SEC-009	The system SHALL document known security limitations rather than claiming perfect prompt-injection or security protection.	Security claims must remain honest.	MANDATORY	Security Philosophy	Documentation explicitly states relevant limitations.
+## 6. Reliability Requirements
 6. Reliability Requirements
 ID	Requirement	Reason	Priority	Source	Acceptance interpretation
 REL-001	Failed document ingestion SHALL produce a detectable failure state.	Silent ingestion failures create false knowledge-base completeness.	MANDATORY	Ingestion Requirements	Failed processing is distinguishable from successful processing.
@@ -82,6 +102,7 @@ REL-004	Unsupported document formats SHALL be rejected or clearly identified.	Un
 REL-005	Oversized documents SHALL be handled according to an explicit limit/policy.	Unbounded inputs threaten reliability and cost.	MANDATORY	Ingestion Requirements	Oversized input is rejected, constrained, or safely processed according to a defined policy.
 REL-006	External AI/service failures SHALL not cause uncontrolled application failure.	AI dependencies can fail independently.	MANDATORY	Reliability Requirements	Dependency failures result in controlled error behavior.
 REL-007	The system SHALL avoid returning fabricated citations when supporting evidence is unavailable.	False provenance directly violates GroundTruth's purpose.	MANDATORY	Citation Requirements	Every returned citation corresponds to actual indexed source material.
+## 7. Performance Requirements
 7. Performance Requirements
 
 The Constitution requires performance to be measured, but it does not establish numerical thresholds. Therefore numerical targets must not be invented here.
@@ -92,6 +113,7 @@ PERF-002	Retrieval performance SHALL be measurable independently from generation
 PERF-003	AI model usage SHALL be measurable where the provider exposes relevant usage information.	Cost and performance depend on model usage.	IMPORTANT	Cost / Observability	Relevant token/usage information is captured when available.
 PERF-004	Performance optimization SHALL not reduce answer trustworthiness without an explicit engineering trade-off.	Speed cannot silently replace correctness.	MANDATORY	Product Vision	Performance changes are evaluated against quality metrics.
 PERF-005	Quantitative latency targets SHALL be established before performance acceptance testing.	No target currently exists in the Constitution.	DEFERRED	Open Questions	A later approved target is used for formal performance acceptance.
+## 8. Scalability Requirements
 8. Scalability Requirements
 
 The project does not claim enterprise-scale capacity.
@@ -101,6 +123,7 @@ SCALE-001	The system SHALL support growth beyond a single demonstration document
 SCALE-002	The architecture SHALL avoid unnecessary scale-oriented infrastructure before actual workload requirements justify it.	Student resource constraints and anti-overengineering principle.	MANDATORY	Constraints	No distributed infrastructure is introduced without a demonstrated requirement.
 SCALE-003	Expected workload limits SHALL be defined before claiming scalability characteristics.	Current scale assumptions are incomplete.	DEFERRED	Unknowns	Capacity claims are made only after workload targets exist.
 SCALE-004	The system SHALL not claim production-scale capacity that has not been measured.	Prevents misleading portfolio/interview claims.	MANDATORY	Development Philosophy	Public documentation distinguishes demonstrated capacity from future scalability.
+## 9. Observability Requirements
 9. Observability Requirements
 ID	Requirement	Reason	Priority	Source	Acceptance interpretation
 OBS-001	The system SHALL provide sufficient request-level information to understand important request behavior.	AI pipelines are difficult to debug without visibility.	MANDATORY	Observability	Important request stages can be investigated.
@@ -110,6 +133,7 @@ OBS-004	Important errors SHALL be observable.	Silent errors undermine reliabilit
 OBS-005	Latency SHALL be observable at relevant pipeline stages.	Bottlenecks must be measurable.	IMPORTANT	Observability	Major stages expose timing information.
 OBS-006	Token/usage and cost information SHALL be captured where technically available and relevant.	Student cost control is an explicit requirement.	IMPORTANT	Cost / Observability	Usage can be analyzed after representative runs.
 OBS-007	Full tracing infrastructure SHALL only be introduced if its value is demonstrated.	Avoids observability for buzzword purposes.	DEFERRED	Development Philosophy	Advanced tracing is adopted only when justified.
+## 10. Maintainability Requirements
 10. Maintainability Requirements
 ID	Requirement	Reason	Priority	Source	Acceptance interpretation
 MAINT-001	The system SHALL have clearly separated responsibilities for ingestion, retrieval, generation, security and evaluation.	Separation supports understanding and modification.	MANDATORY	Development Philosophy	Components have identifiable responsibilities.
@@ -118,6 +142,7 @@ MAINT-003	The repository SHALL contain setup and development documentation.	Othe
 MAINT-004	The repository SHALL document known limitations.	Honest engineering requires explicit boundaries.	MANDATORY	GitHub Standard	Important limitations are visible to users/developers.
 MAINT-005	The project SHALL avoid unnecessary framework coupling.	Prevents implementation choices from becoming accidental architecture.	IMPORTANT	Development Philosophy	Frameworks are introduced only where they solve a demonstrated problem.
 MAINT-006	AI-generated changes SHALL be reviewed and verified before being considered accepted implementation.	AI assistance does not establish correctness.	MANDATORY	Development Workflow	Generated changes are tested/reviewed before acceptance.
+## 11. Testing Requirements
 11. Testing Requirements
 ID	Requirement	Reason	Priority	Source	Acceptance interpretation
 TEST-001	The system SHALL include tests for document ingestion.	Ingestion errors directly affect evidence quality.	MANDATORY	Testing Requirements	Representative ingestion cases have automated or repeatable tests.
@@ -129,6 +154,7 @@ TEST-006	Critical frontend workflows SHALL be tested.	The target is a real usabl
 TEST-007	Error-handling paths SHALL be tested.	Failure behavior is part of product quality.	MANDATORY	Reliability / Testing	Important failure cases produce expected outcomes.
 TEST-008	AI evaluation SHALL remain conceptually separate from ordinary software unit testing.	Correct code does not guarantee good AI behavior.	MANDATORY	Evaluation Methodology	Software correctness tests and AI-quality evaluations are distinct.
 TEST-009	Security/adversarial tests SHALL include malicious document content and prompt-injection attempts.	Indirect prompt injection is an explicit threat.	MANDATORY	Security Requirements	Representative attacks are included in testing.
+## 12. Deployment Requirements
 12. Deployment Requirements
 ID	Requirement	Reason	Priority	Source	Acceptance interpretation
 DEP-001	The final GroundTruth product SHALL be publicly deployed.	Localhost-only delivery is explicitly insufficient.	MANDATORY	Deployment Requirement	A real external user can access the deployed product.
@@ -139,6 +165,7 @@ DEP-005	Production secrets SHALL be securely configured.	Deployment must not exp
 DEP-006	Production configuration SHALL be documented.	Reproducibility and maintenance.	MANDATORY	GitHub Standard	Deployment setup is documented.
 DEP-007	Deployment SHALL include appropriate logging/monitoring for the implemented system.	Public deployment requires operational visibility.	IMPORTANT	Observability	Important production failures can be detected/investigated.
 DEP-008	Deployment provider selection SHALL be deferred until workload, cost, storage, database and security requirements are known.	No cloud provider has been approved.	DEFERRED	Constitution / Decision Process	Provider is selected only after requirements analysis.
+## 13. Data Requirements
 13. Data Requirements
 ID	Requirement	Reason	Priority	Source	Acceptance interpretation
 DATA-001	The system SHALL maintain document identity.	Source attribution requires knowing which document produced evidence.	MANDATORY	Ingestion / Citations	Every indexed document has identifiable identity.
@@ -149,6 +176,7 @@ DATA-005	Stored embeddings SHALL remain associated with the content they represe
 DATA-006	Feedback data SHALL be associated with the relevant product interaction where required for evaluation/improvement.	Feedback without context has limited value.	IMPORTANT	Feedback / Evaluation	Feedback can be analyzed in relation to the corresponding answer.
 DATA-007	Evaluation data SHALL be maintained separately enough to support reproducible evaluation.	Prevents evaluation from becoming indistinguishable from application data.	MANDATORY	Evaluation Methodology	Evaluation datasets can be versioned/reused independently.
 DATA-008	User/collection/document data SHALL be isolated according to the system's authorization model.	Prevents cross-user leakage.	MANDATORY	Security	Unauthorized users cannot retrieve protected data.
+## 14. UX Requirements
 14. UX Requirements
 ID	Requirement	Reason	Priority	Source	Acceptance interpretation
 UX-001	The interface SHALL clearly communicate the distinction between generated answers and supporting evidence.	Trust is central to the product.	MANDATORY	Product Vision / Citations	Users can visually distinguish answer content from evidence.
@@ -172,6 +200,7 @@ AI-006	Citation output SHALL correspond to actual retrieved/indexed evidence.	Fa
 AI-007	AI model choices SHALL be evaluated against GroundTruth requirements rather than selected solely by popularity.	Model behavior directly affects quality/cost.	MANDATORY	Decision Methodology	Model selection is supported by relevant experiments/evidence.
 AI-008	Embedding choices SHALL be evaluated for retrieval quality, representation characteristics, latency and cost before being finalized.	Embeddings directly affect retrieval.	MANDATORY	Embedding Requirements	Candidate embedding approaches are compared using the evaluation protocol.
 AI-009	Advanced retrieval techniques SHALL not be adopted solely because they are considered modern or sophisticated.	Prevents architecture-by-buzzword.	MANDATORY	Development Philosophy	Each added retrieval technique has measurable justification.
+## 16. Evaluation Requirements
 16. Evaluation Requirements
 
 This is one of the most important sections of the entire specification.
@@ -200,6 +229,7 @@ EVAL-020	No performance or quality metric SHALL be claimed publicly unless it ha
 
 The current research specifically proposes establishing the retrieval experiment protocol—including retrieval hits, multi-hop scoring, Recall@K, MRR, evidence completeness, context-noise ratio, latency, chunk-size comparisons, protection against test-set tuning, and criteria for justifying hybrid + reranking—before selecting embedding/vector technologies.
 
+## 17. Explicit Constraints
 17. Explicit Constraints
 ID	Constraint	Priority	Acceptance interpretation
 CON-001	GroundTruth SHALL remain a trustworthy RAG product rather than a generic chatbot.	MANDATORY	Product decisions must preserve the evidence-grounded identity.
@@ -212,6 +242,7 @@ CON-007	The project SHALL document limitations rather than hide them.	MANDATORY	
 CON-008	Architecture and technology decisions SHALL follow requirements, research and experiments.	MANDATORY	No final technology is selected solely from popularity.
 CON-009	Substantial implementation SHALL not begin before the necessary requirements and architectural decisions are sufficiently established.	MANDATORY	Development proceeds through bounded, reviewed milestones.
 CON-010	AI-generated code SHALL be verified before acceptance.	MANDATORY	Generated implementation is treated as untrusted until tested/reviewed.
+## 18. Resource Constraints
 18. Resource Constraints
 ID	Requirement / Constraint	Priority	Acceptance interpretation
 RES-001	Infrastructure SHALL be appropriate for a student budget.	MANDATORY	Architecture avoids unnecessary recurring expense.
@@ -223,6 +254,7 @@ RES-006	Expensive infrastructure SHALL not be introduced without demonstrated ne
 
 No numerical budget has been established in the Constitution; therefore no artificial dollar limit is introduced here.
 
+## 19. Technology Constraints
 19. Technology Constraints
 
 This section is deliberately different from a technology stack.
@@ -260,6 +292,7 @@ CON-TECH-005 — DEFERRED
 
 Final technology selection remains a subsequent engineering activity after requirements, research and evaluation protocol are established.
 
+## 20. Scope Boundaries
 20. Scope Boundaries
 In Scope
 
@@ -336,6 +369,7 @@ OOS-010 — DEFERRED
 
 Advanced multi-agent orchestration is not currently an approved GroundTruth capability.
 
+## 21. Requirement Priority Summary
 21. Requirement Priority Summary
 
 The hierarchy emerging from the specification is:
@@ -368,6 +402,7 @@ The hierarchy emerging from the specification is:
 
 Everything else should support this hierarchy.
 
+## 22. Requirements Traceability Summary
 22. Requirements Traceability Summary
 
 This is the most important final cross-check.
@@ -391,6 +426,7 @@ Control student costs	RES-001–RES-006, PERF-003, EVAL-017
 Become a real deployed product	DEP-001–DEP-007
 Avoid false engineering claims	SCALE-004, EVAL-020, CON-005–CON-007
 Preserve the project's identity	CON-001–CON-004, OOS-001–OOS-006
+## 23. Current Requirement Baseline
 23. Current Requirement Baseline
 
 At this point, the formal requirement boundary can be summarized as:

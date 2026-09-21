@@ -1,3 +1,18 @@
+# Technology
+For technology and tooling requirements, please refer to [Foundation-GroundTruth/groundtruth-technology-and-tooling.md](Foundation-GroundTruth/groundtruth-technology-and-tooling.md).
+# TECHNOLOGY
+
+The authoritative technology and tooling specification is maintained in the frozen foundation documentation.
+
+See: [Foundation-GroundTruth/groundtruth-technology-and-tooling.md](Foundation-GroundTruth/groundtruth-technology-and-tooling.md)
+# Technology
+
+This document delegates to the authoritative foundation document:
+- [Technology and Tooling Specification](Foundation-GroundTruth/groundtruth-technology-and-tooling.md)
+# TECHNOLOGY AND TOOLING SPECIFICATION
+
+
+## 1. Technology Selection Philosophy
 TECHNOLOGY AND TOOLING SPECIFICATION
 
 Project: GroundTruth
@@ -44,6 +59,7 @@ REQUIREMENT
 
 A technology enters the stack only when it solves an identified problem.
 
+## 2. Final Technology Stack
 2. Final Technology Stack
 
 The recommended implementation stack is:
@@ -76,6 +92,7 @@ The exact AI models, authentication provider, object-storage provider, cloud pro
 
 The architecture is final; these implementation-level decisions do not alter it.
 
+## 3. Programming Language
 3. Programming Language
 Decision
 Python — APPROVED DECISION
@@ -197,6 +214,7 @@ Status
 
 APPROVED DECISION
 
+## 5. Frontend
 5. Frontend
 React + TypeScript — APPROVED DECISION
 Purpose
@@ -244,6 +262,7 @@ Status
 
 APPROVED DECISION
 
+## 6. Database
 6. Database
 PostgreSQL — APPROVED DECISION
 
@@ -291,6 +310,7 @@ Status
 
 APPROVED DECISION
 
+## 7. Vector Storage
 7. Vector Storage
 Dedicated vector database — NOT REQUIRED
 
@@ -333,6 +353,7 @@ NOT REQUIRED
 
 A future measured scalability requirement could trigger an Architectural Change Request.
 
+## 8. Lexical Search
 8. Lexical Search
 PostgreSQL lexical search — APPROVED DECISION
 
@@ -359,6 +380,7 @@ Status
 
 APPROVED DECISION
 
+## 9. Embedding Model
 9. Embedding Model
 Exact embedding model — OPEN QUESTION
 
@@ -398,6 +420,7 @@ Status
 
 OPEN QUESTION
 
+## 10. LLM
 10. LLM
 Exact LLM — OPEN QUESTION
 
@@ -431,6 +454,7 @@ Status
 
 LLM provider/model: OPEN QUESTION
 
+## 11. AI Provider Abstraction
 11. AI Provider Abstraction
 Provider adapter — APPROVED DECISION
 
@@ -458,6 +482,7 @@ Status
 
 APPROVED DECISION
 
+## 12. Storage
 12. Storage
 Object/File Storage — OPEN QUESTION
 
@@ -489,6 +514,7 @@ Status
 
 OPEN QUESTION
 
+## 13. Authentication
 13. Authentication
 Managed authentication — PROPOSAL
 
@@ -522,6 +548,7 @@ PROPOSAL
 
 The exact provider remains OPEN QUESTION.
 
+## 14. Authorization
 14. Authorization
 Application-level authorization — APPROVED DECISION
 
@@ -543,6 +570,7 @@ Status
 
 APPROVED DECISION
 
+## 15. Testing
 15. Testing
 Backend — Pytest — APPROVED DECISION
 Purpose
@@ -575,6 +603,7 @@ Status
 
 OPEN QUESTION
 
+## 16. AI Evaluation System
 16. AI Evaluation System
 Custom versioned evaluation subsystem — APPROVED DECISION
 
@@ -644,6 +673,7 @@ Status
 
 APPROVED DECISION
 
+## 18. Deployment
 18. Deployment
 Managed deployment — APPROVED DECISION
 
@@ -696,6 +726,7 @@ Deployment architecture: APPROVED
 
 Exact provider: OPEN QUESTION
 
+## 19. Monitoring
 19. Monitoring
 
 Monitoring is required conceptually but should remain proportional.
@@ -713,6 +744,7 @@ OPEN QUESTION
 
 It should be selected only after deployment architecture is known.
 
+## 20. Observability
 20. Observability
 Structured application observability — APPROVED DECISION
 
@@ -745,6 +777,7 @@ Specific platform:
 
 OPEN QUESTION
 
+## 21. Security Tooling
 21. Security Tooling
 
 Security is a combination of architecture + implementation + testing.
@@ -766,6 +799,7 @@ NOT REQUIRED initially.
 
 We do not need an elaborate security platform simply to claim "production security."
 
+## 22. Documentation
 22. Documentation
 Markdown + GitHub repository — APPROVED DECISION
 
@@ -801,6 +835,7 @@ Status
 
 APPROVED DECISION
 
+## 23. Design Tools
 23. Design Tools
 Stitch — AVAILABLE / PROPOSED FOR USE
 Purpose
@@ -828,6 +863,7 @@ AVAILABLE
 
 GroundTruth role: PROPOSAL
 
+## 24. Google AI Studio
 24. Google AI Studio
 AI Studio — AVAILABLE
 
@@ -855,6 +891,7 @@ AVAILABLE
 
 APPROVED TOOL ROLE
 
+## 25. Gemini GroundTruth Notebook
 25. Gemini GroundTruth Notebook
 Gemini Notebook — AVAILABLE
 
@@ -889,6 +926,7 @@ AVAILABLE
 
 APPROVED TOOL ROLE
 
+## 26. Gemini
 26. Gemini
 
 Gemini has a broader project reasoning role.
@@ -912,6 +950,7 @@ AVAILABLE
 
 APPROVED TOOL ROLE
 
+## 27. Gemini CLI
 27. Gemini CLI
 Gemini CLI — ALREADY CONFIGURED
 
@@ -947,6 +986,7 @@ ALREADY CONFIGURED
 
 APPROVED OPTIONAL TOOL
 
+## 28. Antigravity
 28. Antigravity
 Antigravity — AVAILABLE / PRIMARY IMPLEMENTATION TOOL
 Purpose
@@ -986,6 +1026,7 @@ AVAILABLE
 
 APPROVED TOOL ROLE
 
+## 29. Jules
 29. Jules
 Jules — AVAILABLE FOR GROUNDTRUTH
 
@@ -1029,6 +1070,7 @@ AVAILABLE
 
 APPROVED TOOL ROLE
 
+## 30. GitHub
 30. GitHub
 GitHub — APPROVED DECISION / SOURCE OF TRUTH
 
@@ -1088,6 +1130,7 @@ Status
 
 APPROVED TOOLING PRACTICE
 
+## 32. Opal
 32. Opal
 Opal — NOT REQUIRED
 
@@ -1106,6 +1149,7 @@ Status
 
 NOT REQUIRED
 
+## 33. Flow
 33. Flow
 Google Flow — OPTIONAL / LATE-STAGE TOOL
 
@@ -1127,6 +1171,7 @@ Status
 
 AVAILABLE TOOL CATEGORY / OPTIONAL
 
+## 34. Canva
 34. Canva
 Canva — OPTIONAL
 
@@ -1143,6 +1188,7 @@ Status
 
 AVAILABLE / OPTIONAL
 
+## 35. Google Drive
 35. Google Drive
 Google Drive — AVAILABLE / SUPPORTING TOOL
 
@@ -1160,6 +1206,7 @@ AVAILABLE
 
 OPTIONAL SUPPORT TOOL
 
+## 36. Gmail
 36. Gmail
 Gmail — NOT PART OF CORE ENGINEERING
 
@@ -1175,6 +1222,7 @@ Status
 
 NOT REQUIRED for GroundTruth engineering
 
+## 37. Google Calendar
 37. Google Calendar
 Calendar — OPTIONAL PROJECT MANAGEMENT TOOL
 
@@ -1191,6 +1239,7 @@ Status
 
 AVAILABLE / OPTIONAL
 
+## 38. Tooling We Explicitly Reject for Now
 38. Tooling We Explicitly Reject for Now
 
 These are intentionally excluded.
@@ -1272,6 +1321,7 @@ production PostgreSQL
 frontend hosting
 backend hosting
 observability/monitoring implementation.
+## 41. Cost Architecture
 41. Cost Architecture
 
 The cost model should be:
@@ -1302,6 +1352,7 @@ We want:
 
 best trustworthy-answer quality per practical cost.
 
+## 42. Security Configuration Principles
 42. Security Configuration Principles
 
 Regardless of provider, the tooling stack must enforce:
@@ -1324,6 +1375,7 @@ Authentication credentials must not be committed to GitHub.
 
 Production and development credentials must remain separable.
 
+## 43. Tool Responsibility Map
 43. Tool Responsibility Map
 
 This is the important operational separation.
@@ -1371,6 +1423,7 @@ This is the important operational separation.
                          ▼               ▼
                       STITCH            FLOW
                     UI/design        portfolio/demo
+## 44. Definitive Toolchain Map
 44. Definitive Toolchain Map
 Engineering Core
 GitHub
@@ -1502,6 +1555,7 @@ Presentation / portfolio assets
 
 Status: OPTIONAL / LATE-STAGE
 
+## 45. Final Classification Matrix
 45. Final Classification Matrix
 Category	Final status
 Python	APPROVED DECISION

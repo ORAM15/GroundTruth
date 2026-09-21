@@ -1,3 +1,18 @@
+# Evaluation
+For quality and evaluation system specifications, please refer to [Foundation-GroundTruth/groundtruth-quality-and-evaluation-system.md](Foundation-GroundTruth/groundtruth-quality-and-evaluation-system.md).
+# EVALUATION
+
+The authoritative quality and evaluation system is maintained in the frozen foundation documentation.
+
+See: [Foundation-GroundTruth/groundtruth-quality-and-evaluation-system.md](Foundation-GroundTruth/groundtruth-quality-and-evaluation-system.md)
+# Evaluation
+
+This document delegates to the authoritative foundation document:
+- [Quality and Evaluation System](Foundation-GroundTruth/groundtruth-quality-and-evaluation-system.md)
+# EVALUATION SYSTEM
+
+
+## 1. Purpose
 Yes. This should become the quality-control layer of GroundTruth: not another testing checklist, but the system that determines whether each claimed engineering advancement is actually demonstrated.
 
 FINAL QUALITY AND EVALUATION SYSTEM
@@ -43,6 +58,7 @@ PASSING UNIT TESTS ≠ PROJECT PROGRESS
 
 A green build is useful evidence, but it proves only that the defined build/test process succeeded. It does not prove that GroundTruth is correct, trustworthy, secure, useful, or ready for release.
 
+## 2. Quality Model
 2. Quality Model
 
 GroundTruth quality is evaluated across multiple dimensions:
@@ -70,6 +86,7 @@ GroundTruth quality is evaluated across multiple dimensions:
 
 No single test category is sufficient.
 
+## 3. Evidence Hierarchy
 3. Evidence Hierarchy
 
 Evidence should be evaluated according to the question being answered.
@@ -116,6 +133,7 @@ telemetry
 
 The correct evidence depends on the claim.
 
+## 4. Test Pyramid
 4. Test Pyramid
 
 GroundTruth follows a layered testing model:
@@ -146,6 +164,7 @@ Operational Validation
 
 AI evaluation is not a replacement for conventional testing.
 
+## 5. Unit Testing
 5. Unit Testing
 Purpose
 
@@ -187,6 +206,7 @@ Normally automated CI.
 
 Human review remains required where specified by the checkpoint.
 
+## 6. Integration Testing
 6. Integration Testing
 Purpose
 
@@ -278,6 +298,7 @@ silently fails
 produces unsupported output
 loses source lineage
 exposes unauthorized data.
+## 8. Regression Testing
 8. Regression Testing
 
 Regression testing answers:
@@ -314,6 +335,7 @@ Failure criteria
 
 Previously passing functionality fails without an explicitly approved behavior change.
 
+## 9. Security Testing
 9. Security Testing
 
 Security testing is continuous.
@@ -358,6 +380,7 @@ security control bypass.
 
 A security test failure is not something to suppress to make CI green.
 
+## 10. Performance Testing
 10. Performance Testing
 
 Performance testing measures actual behavior rather than assumptions.
@@ -394,6 +417,7 @@ Measured performance violates the accepted thresholds or produces unacceptable d
 
 A benchmark without a defined workload is not meaningful evidence.
 
+## 11. AI Evaluation
 11. AI Evaluation
 
 This is a first-class quality system.
@@ -407,6 +431,7 @@ DIFFICULT
 UNANSWERABLE
 ADVERSARIAL
 INJECTION
+## 12. Retrieval Evaluation
 12. Retrieval Evaluation
 
 Retrieval is evaluated independently before judging final generation.
@@ -435,6 +460,7 @@ Failure
 
 Relevant evidence is consistently absent from the candidate set.
 
+## 13. Groundedness Evaluation
 13. Groundedness Evaluation
 
 This answers:
@@ -450,6 +476,7 @@ Incorrect + unsupported
 
 The system must not receive full credit simply because the final answer happens to be correct.
 
+## 14. Citation Evaluation
 14. Citation Evaluation
 
 Citation correctness is separately evaluated.
@@ -474,6 +501,7 @@ fabricated citation
 incorrect source
 citation that does not support the claim
 broken lineage.
+## 15. Abstention Evaluation
 15. Abstention Evaluation
 
 GroundTruth must evaluate whether the system knows when it lacks evidence.
@@ -500,6 +528,7 @@ incorrect abstention
 
 because a system that refuses everything is not trustworthy either.
 
+## 16. AI Security Evaluation
 16. AI Security Evaluation
 
 The evaluation suite should include malicious documents and adversarial queries.
@@ -522,6 +551,7 @@ follow the embedded instruction
 
 The exact adversarial suite should evolve as vulnerabilities are discovered.
 
+## 17. AI Evaluation Limitations
 17. AI Evaluation Limitations
 
 Automated AI evaluation is not absolute truth.
@@ -544,6 +574,7 @@ adversarial testing
 
 where appropriate.
 
+## 18. UX Validation
 18. UX Validation
 
 UX validation asks:
@@ -575,6 +606,7 @@ what the system is doing
 whether it succeeded
 where the answer came from
 when the system does not know.
+## 19. Deployment Validation
 19. Deployment Validation
 
 Local success is not deployment success.
@@ -606,6 +638,7 @@ Failure criteria
 
 Any critical production dependency or workflow fails.
 
+## 20. Observability Validation
 20. Observability Validation
 
 Observability itself must be tested.
@@ -638,6 +671,7 @@ Failure criteria
 
 Important failures occur without enough information to diagnose them.
 
+## 21. Failure Testing
 21. Failure Testing
 
 GroundTruth must deliberately test expected failure modes.
@@ -664,6 +698,7 @@ The objective is:
 
 When something fails, the system fails safely and transparently.
 
+## 22. Phase Quality Gates
 22. Phase Quality Gates
 
 Each master phase has a quality gate.
@@ -948,6 +983,7 @@ Approval
 
 Project owner.
 
+## 33. Gate States
 33. Gate States
 
 Every phase/checkpoint gate has exactly four meaningful outcomes.
@@ -1004,6 +1040,7 @@ AUTOMATED PASS
 HUMAN REVIEW
       ↓
 APPROVE / REJECT
+## 34. Quality Gate Decision Logic
 34. Quality Gate Decision Logic
                     VALIDATE
                        │
@@ -1053,6 +1090,7 @@ Gate
 
 If a requirement has no validation method, that is a quality-system defect.
 
+## 36. Evidence Storage
 36. Evidence Storage
 
 Evaluation artifacts should remain reproducible and inspectable.
@@ -1074,6 +1112,7 @@ deployment verification
 telemetry
 benchmark output
 evaluation reports.
+## 37. Baselines
 37. Baselines
 
 GroundTruth should establish baselines before claiming improvement.
@@ -1119,6 +1158,7 @@ The correct engineering response is:
 
 improve the weak area or explicitly document the limitation.
 
+## 39. Reproducibility
 39. Reproducibility
 
 Important evaluation results should be reproducible.
@@ -1139,6 +1179,7 @@ This prevents:
 
 from becoming an engineering claim.
 
+## 40. Quality Regression Rule
 40. Quality Regression Rule
 
 If a new feature improves one metric while significantly damaging another important metric, it is not automatically an improvement.
@@ -1153,6 +1194,7 @@ This requires engineering judgment.
 
 The project should evaluate the complete trade-off.
 
+## 41. Meaningful Project Progress
 41. Meaningful Project Progress
 
 GroundTruth progress should be measured through validated capability.
@@ -1185,6 +1227,7 @@ while:
 
 This is deliberate.
 
+## 42. Quality Record for Every Checkpoint
 42. Quality Record for Every Checkpoint
 
 Each checkpoint should ultimately contain:
@@ -1203,6 +1246,7 @@ CHECKPOINT
 
 Not every category is applicable to every checkpoint, but the checkpoint must explicitly state what is and is not applicable.
 
+## 43. Final Quality Principle
 43. Final Quality Principle
 
 GroundTruth adopts one central quality rule:
@@ -1231,6 +1275,7 @@ means the production-readiness gate passed.
 
 means the system has measurable evidence supporting that claim across retrieval, grounding, citation, abstention and security—not merely a convincing demo.
 
+## 44. FINAL QUALITY CONTROL LOOP
 44. FINAL QUALITY CONTROL LOOP
 
 The authoritative GroundTruth quality loop is:
@@ -1282,6 +1327,7 @@ The authoritative GroundTruth quality loop is:
                          │
                          ▼
                     REVALIDATE
+## 45. Final Status
 45. Final Status
 
 QUALITY AND EVALUATION SYSTEM v1.0 — FINAL

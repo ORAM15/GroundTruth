@@ -42,7 +42,7 @@ None
 Pending Creation
 
 ## Blocked Work
-None
+- C0.1 requires Project Owner approval.
 
 ## Failed Attempts
 None

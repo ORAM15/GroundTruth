@@ -111,6 +111,7 @@ Waiting for human approval on Checkpoint C0.1.
 Pending Human Approval for Checkpoint C0.1.
 
 ## What Is Blocked
+- Checkpoint C0.1 requires Project Owner approval.
 Waiting for human review of C0.1.
 None - waiting for human approval for C0.1.
 

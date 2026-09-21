@@ -25,6 +25,7 @@ REVIEW
 - None (C0.1 is in review)
 
 ## Active Work
+Waiting for human approval for C0.1.
 Waiting for human approval of Checkpoint C0.1 - Repository Baseline.
 Executing Checkpoint C0.1: Repository Baseline.
 Waiting for C0.1 repository baseline approval.
@@ -53,6 +54,10 @@ None
 - Checkpoint C0.2 (Owner Approval Required)
 
 ## Latest Validation
+VR-20260910-001
+
+## Repository State
+Repository baseline pointer documents created.
 Validation of cross-document consistency completed for C0.1.
 
 ## Repository State

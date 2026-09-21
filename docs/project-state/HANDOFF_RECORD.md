@@ -81,6 +81,7 @@ Created the execution substrate documents:
 - docs/project-state/HANDOFF_RECORD.md
 - docs/autonomy/AUTONOMOUS_EXECUTION_CONTRACT.md
 - docs/autonomy/JULES_INVOCATION.md
+Created pointer documents:
 Created root index documents pointing to foundation:
 - THREAT_MODEL.md
 - DEVELOPMENT.md
@@ -95,6 +96,10 @@ Created the repository baseline documents (C0.1):
 - DEVELOPMENT.md
 
 ## What Is Currently Being Worked On
+Pending Human Approval for Checkpoint C0.1.
+
+## What Is Blocked
+Waiting for human review of C0.1.
 None - waiting for human approval for C0.1.
 
 ## What Is Blocked
@@ -119,6 +124,7 @@ None
 - Checkpoint C0.1 requires Project Owner approval.
 
 ## Latest Validation
+VR-20260910-001
 Cross-document consistency review passed successfully.
 
 ## Repository State
@@ -132,6 +138,7 @@ Cross-document consistency review
 ## Repository State
 Branch: checkpoint/C0.1-repository-baseline
 Commit: Pending PR creation.
+Working tree: Substrate documents and pointer documents added.
 Working tree: Substrate documents and root index documents added.
 Working tree: Baseline documents added. State updated.
 Working tree: Baseline documents added.
@@ -146,6 +153,7 @@ None
 None
 
 ## Important Recent Changes
+Established the execution substrate based on the frozen foundation documents. Created repository baseline pointer documents.
 Established the repository baseline documents (PRODUCT, REQUIREMENTS, ARCHITECTURE, TECHNOLOGY, EVALUATION, THREAT_MODEL, DEVELOPMENT).
 Established the baseline documentation for C0.1.
 Extracted frozen foundation specifications into top-level baseline documents according to C0.1 requirements.
@@ -155,6 +163,7 @@ Established the repository baseline based on the frozen foundation documents.
 Do not modify the frozen foundation documents. Do not jump ahead to Phase 1. Do not introduce arbitrary dependencies or code architectures not approved by the foundation. Do not proceed to C0.2 until C0.1 is approved.
 
 ## Next Permitted Action
+Wait for human approval of C0.1.
 Await human approval for Checkpoint C0.1 before proceeding to C0.2.
 Wait for project owner review of C0.1.
 Await human approval for Checkpoint C0.1.
@@ -164,6 +173,7 @@ Wait for owner approval of C0.1.
 ## Resume Instructions
 1. Inspect Git state.
 2. Read PROJECT_STATE.md and HANDOFF_RECORD.md to confirm consistency.
+3. Verify if C0.1 has been approved by the project owner.
 3. Verify if human approval for C0.1 has been granted.
 4. If approved, proceed with C0.2. If not, wait.
 3. Wait for C0.1 approval, or proceed with C0.2 if authorized.

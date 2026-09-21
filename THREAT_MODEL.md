@@ -1,3 +1,5 @@
+# Threat Model
+For threat model requirements and specifications, please refer to [Foundation-GroundTruth/groundtruth-requirements-and-constraints.md](Foundation-GroundTruth/groundtruth-requirements-and-constraints.md).
 # THREAT MODEL
 
 The authoritative threat model and security requirements are maintained in the frozen foundation documentation.

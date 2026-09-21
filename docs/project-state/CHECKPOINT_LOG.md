@@ -37,6 +37,7 @@ Acceptance Criteria:
 - [x] architecture matches requirements
 
 Validation:
+Cross-document consistency review
 VR-20260910-001
 Cross-document consistency review (Validation ID: VR-20260902-C0.1)
 

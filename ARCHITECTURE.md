@@ -1,3 +1,5 @@
+# Architecture
+For architectural specifications, please refer to [Foundation-GroundTruth/groundtruth-architechture-specification.md](Foundation-GroundTruth/groundtruth-architechture-specification.md).
 # ARCHITECTURE
 
 The authoritative architecture specification is maintained in the frozen foundation documentation.

@@ -1,3 +1,5 @@
+# Evaluation
+For quality and evaluation system specifications, please refer to [Foundation-GroundTruth/groundtruth-quality-and-evaluation-system.md](Foundation-GroundTruth/groundtruth-quality-and-evaluation-system.md).
 # EVALUATION
 
 The authoritative quality and evaluation system is maintained in the frozen foundation documentation.

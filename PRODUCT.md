@@ -1,3 +1,5 @@
+# Product
+For product requirements and specifications, please refer to [Foundation-GroundTruth/groundtruth-constitution.md](Foundation-GroundTruth/groundtruth-constitution.md) and [Foundation-GroundTruth/groundtruth-master-phases.md](Foundation-GroundTruth/groundtruth-master-phases.md).
 # PRODUCT
 
 The authoritative project constitution and product definition is maintained in the frozen foundation documentation.

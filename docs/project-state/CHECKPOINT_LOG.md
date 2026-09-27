@@ -6,6 +6,7 @@ Phase:
 Phase 0
 
 Status:
+COMPLETED
 REVIEW (PENDING HUMAN APPROVAL)
 CLOSED
 REVIEW (PENDING HUMAN APPROVAL)
@@ -18,7 +19,7 @@ Branch:
 checkpoint/C0.1-repository-baseline
 
 PR:
-None
+#5
 
 Started:
 2026-09-02
@@ -58,6 +59,53 @@ Cross-document consistency review
 VR-001
 
 Human Approval:
+APPROVED
+
+Evidence:
+Merge commit a67d97fe8cc9f7374ec25fe5574f30a97cbfff8d
+
+Known Limitations:
+None
+
+Next Checkpoint:
+C0.2
+
+---
+
+## C0.2 — Change-Control Baseline
+
+Phase:
+Phase 0
+
+Status:
+REVIEW (PENDING HUMAN APPROVAL)
+
+Issue:
+None
+
+Branch:
+checkpoint/C0.2-change-control-baseline
+
+PR:
+None
+
+Started:
+2026-09-11
+
+Completed:
+PENDING
+
+Objective:
+Establish how future architecture/requirement changes are controlled.
+
+Acceptance Criteria:
+- [x] No architectural change can occur informally.
+
+Validation:
+VR-002
+
+Human Approval:
+PENDING
 APPROVED (Merged to main)
 
 Blockers:

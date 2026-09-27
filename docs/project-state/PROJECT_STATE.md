@@ -7,6 +7,7 @@ GroundTruth
 1.1
 
 ## Last Updated
+2026-09-11 19:35 UTC
 2026-09-16 06:21 UTC
 2026-09-15 06:33 UTC
 $(date -u +"%Y-%m-%d %H:%M UTC")
@@ -26,6 +27,10 @@ REVIEW (PENDING HUMAN APPROVAL)
 - C0.1
 
 ## Active Work
+Establishing change-control templates.
+
+## Active Branch
+checkpoint/C0.2-change-control-baseline
 Establishing explicit change-control mechanism.
 
 ## Active Branch
@@ -67,6 +72,9 @@ None
 
 ## Latest Validation
 VR-002
+
+## Repository State
+Change-control templates created. Ready for C0.2 review.
 
 ## Repository State
 Clean baseline establishing execution substrate with C0.1 artifacts. Change-control templates created.

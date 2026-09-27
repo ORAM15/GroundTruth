@@ -8,6 +8,33 @@ HO-20260911-001
 
 ## Project State
 The repository has been initialized with the execution substrate for autonomous agents. C0.1 is complete. We are currently in Phase 0, executing C0.2 to establish change-control baseline.
+HO-20260916-001
+
+## Generated
+2026-09-16 06:21 UTC
+HO-20260911-002
+HO-20260902-002
+
+## Generated
+2026-09-14 (Autonomous Checkpoint Execution Agent)
+2026-09-02
+
+## Project State
+The repository baseline documents have been initialized in the root directory based on the Foundation-GroundTruth documents. Checkpoint C0.1 is complete from an execution standpoint and is awaiting review.
+HO-$(date -u +"%Y%m%d")-002
+
+## Generated
+$(date -u +"%Y-%m-%d %H:%M UTC")
+
+## Project State
+The repository baseline documentation has been established. The agent completed the work for C0.1. C0.1 is now pending human approval.
+HO-20260904-001
+
+## Generated
+2026-09-04 06:25 UTC
+
+## Project State
+The repository baseline (C0.1) has been created and is awaiting owner approval.
 
 ## Current Phase
 Phase 0
@@ -28,8 +55,110 @@ Updated project state documents to reflect C0.1 completion and C0.2 progress.
 ## What Is Currently Being Worked On
 Executing Checkpoint C0.2: Change-Control Baseline.
 
+## What Has Been Completed
+C0.1 (Repository Baseline) has been approved and merged into main. C0.2 templates (`CHANGE_REQUEST_TEMPLATE.md`, `ADR_TEMPLATE.md`, `CHECKPOINT_TEMPLATE.md`) have been created. Validation VR-002 passed.
+
+## What Is Currently Being Worked On
+Waiting for owner approval for C0.2.
+
+## What Has Been Completed
+Created the repository baseline documents:
+
+## What Has Been Completed
+Established baseline documentation for Checkpoint C0.1 by copying frozen foundation documents to the root directory as required:
+- PRODUCT.md (from constitution)
+
+## What Has Been Completed
+Migrated foundational documents to repository root:
+REVIEW
+
+## What Has Been Completed
+Created the repository baseline documents based on the frozen foundation documents:
+- README.md
+- PRODUCT.md
+- REQUIREMENTS.md
+- ARCHITECTURE.md
+- TECHNOLOGY.md
+- EVALUATION.md
+- THREAT_MODEL.md
+- DEVELOPMENT.md
+
+## What Is Currently Being Worked On
+Waiting for human approval of Checkpoint C0.1.
+
 ## What Is Blocked
-None
+All work is blocked on the required human approval for C0.1.
+- DEVELOPMENT.md (from github workflow)
+- Created THREAT_MODEL.md
+- Updated README.md
+- Updated state files (PROJECT_STATE.md, CHECKPOINT_LOG.md) to REVIEW (PENDING HUMAN APPROVAL).
+
+## What Is Currently Being Worked On
+Waiting for human approval on C0.1.
+
+## What Is Blocked
+Progression to C0.2 is blocked pending human approval of C0.1.
+- DEVELOPMENT.md
+- THREAT_MODEL.md
+
+Created the execution substrate documents:
+- (Previous docs)
+
+Created root-level baseline pointer documents for C0.1:
+- PRODUCT.md
+- REQUIREMENTS.md
+- ARCHITECTURE.md
+- TECHNOLOGY.md
+- EVALUATION.md
+- THREAT_MODEL.md
+- DEVELOPMENT.md
+- AGENTS.md
+- docs/project-state/PROJECT_STATE.md
+- docs/project-state/CHECKPOINT_LOG.md
+- docs/project-state/DECISION_LOG.md
+- docs/project-state/VALIDATION_RECORD.md
+- docs/project-state/HANDOFF_RECORD.md
+- docs/autonomy/AUTONOMOUS_EXECUTION_CONTRACT.md
+- docs/autonomy/JULES_INVOCATION.md
+Created pointer documents:
+Created root index documents pointing to foundation:
+- THREAT_MODEL.md
+- DEVELOPMENT.md
+
+Created the repository baseline documents (C0.1):
+- PRODUCT.md
+- REQUIREMENTS.md
+- ARCHITECTURE.md
+- TECHNOLOGY.md
+- EVALUATION.md
+- THREAT_MODEL.md
+- DEVELOPMENT.md
+
+## What Is Currently Being Worked On
+Waiting for human approval for C0.1.
+
+## What Is Blocked
+Waiting for human approval for C0.1.
+Waiting for human approval on Checkpoint C0.1.
+Pending Human Approval for Checkpoint C0.1.
+
+## What Is Blocked
+Checkpoint C0.1 requires Project Owner approval.
+- Checkpoint C0.1 requires Project Owner approval.
+Waiting for human review of C0.1.
+None - waiting for human approval for C0.1.
+
+## What Is Blocked
+Checkpoint C0.1 is complete but blocked pending human approval.
+- DEVELOPMENT.md
+- THREAT_MODEL.md
+
+## What Is Currently Being Worked On
+Waiting for approval of Checkpoint C0.1.
+Waiting for owner approval for C0.1.
+
+## What Is Blocked
+C0.2 is blocked pending human approval of C0.1.
 
 ## Failed Attempts
 None
@@ -47,6 +176,31 @@ VR-002
 Branch: checkpoint/C0.2-change-control-baseline
 Commit: Pending PR creation.
 Working tree: Change-control templates added.
+VR-002 (For C0.2)
+
+## Repository State
+Branch: checkpoint/C0.2-change-control-baseline
+Working tree: C0.2 change-control templates added.
+Cross-document consistency review performed; root-level baseline documents created.
+VR-20260910-001
+Cross-document consistency review passed successfully.
+
+## Repository State
+Branch: checkpoint/C0.1-repository-baseline
+Commit: Pending
+Working tree: Baseline documents added.
+Cross-document consistency review (manual verification by AI that documents map to foundation).
+Cross-document consistency checked during extraction of baseline documents.
+Cross-document consistency review
+
+## Repository State
+Branch: checkpoint/C0.1-repository-baseline
+Commit: Pending PR creation.
+Working tree: Substrate documents and pointer documents added.
+Working tree: Substrate documents and root index documents added.
+Working tree: Baseline documents added. State updated.
+Working tree: Baseline documents added.
+Working tree: Repository baseline added.
 Relevant PR: Pending.
 Relevant Issue: None.
 
@@ -58,17 +212,41 @@ None
 
 ## Important Recent Changes
 Established the change-control baseline templates.
+Created C0.2 change-control templates. Passed validation. Awaiting approval.
+Established the execution substrate based on the frozen foundation documents. Created repository baseline pointer documents.
+Established the repository baseline documents (PRODUCT, REQUIREMENTS, ARCHITECTURE, TECHNOLOGY, EVALUATION, THREAT_MODEL, DEVELOPMENT).
+Established the baseline documentation for C0.1.
+Extracted frozen foundation specifications into top-level baseline documents according to C0.1 requirements.
+Established the repository baseline based on the frozen foundation documents.
 
 ## What Must NOT Be Changed
-Do not modify the frozen foundation documents. Do not jump ahead to Phase 1. Do not introduce arbitrary dependencies or code architectures not approved by the foundation.
+Do not modify the frozen foundation documents. Do not jump ahead to Phase 1. Do not introduce arbitrary dependencies or code architectures not approved by the foundation. Do not proceed to C0.2 until C0.1 is approved.
 
 ## Next Permitted Action
 Wait for owner approval for C0.2.
+Wait for human approval for C0.1.
+Wait for owner approval for C0.2.
+Wait for owner approval for C0.1.
+Wait for C0.1 human approval before proceeding.
+Wait for human approval of C0.1.
+Await human approval for Checkpoint C0.1 before proceeding to C0.2.
+Wait for project owner review of C0.1.
+Await human approval for Checkpoint C0.1.
+Wait for human approval of C0.1 and merge of PR before proceeding to C0.2.
+Wait for owner approval of C0.1.
 
 ## Resume Instructions
 1. Inspect Git state.
 2. Read PROJECT_STATE.md and HANDOFF_RECORD.md to confirm consistency.
 3. Proceed with executing Phase 1 (C1.1) if authorized, or wait for review of the change-control baseline.
+3. Wait for owner approval for C0.2.
+3. Verify if C0.1 has been approved by the project owner.
+3. Verify if human approval for C0.1 has been granted.
+4. If approved, proceed with C0.2. If not, wait.
+3. Wait for C0.1 approval, or proceed with C0.2 if authorized.
+3. If C0.1 is approved, proceed to C0.2. Otherwise, stop.
+3. If PR for C0.1 is merged and approved, begin planning for C0.2. Otherwise, wait.
+3. If C0.1 is approved, proceed to C0.2.
 
 ## Authoritative References
 - Project Constitution

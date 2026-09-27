@@ -6,6 +6,7 @@ Phase:
 Phase 0
 
 Status:
+REVIEW (PENDING HUMAN APPROVAL)
 CLOSED
 REVIEW (PENDING HUMAN APPROVAL)
 REVIEW
@@ -58,6 +59,9 @@ VR-001
 
 Human Approval:
 APPROVED (Merged to main)
+
+Blockers:
+Waiting for human approval for C0.1.
 
 Evidence:
 Commit a67d97fe8cc9f7374ec25fe5574f30a97cbfff8d

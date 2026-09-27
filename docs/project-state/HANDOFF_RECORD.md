@@ -29,10 +29,16 @@ The repository baseline (C0.1) has been created and is awaiting owner approval.
 Phase 0
 
 ## Current Checkpoint
-C0.1
+C0.2
 
 ## Checkpoint Status
 REVIEW (PENDING HUMAN APPROVAL)
+
+## What Has Been Completed
+C0.1 (Repository Baseline) has been approved and merged into main. C0.2 templates (`CHANGE_REQUEST_TEMPLATE.md`, `ADR_TEMPLATE.md`, `CHECKPOINT_TEMPLATE.md`) have been created. Validation VR-002 passed.
+
+## What Is Currently Being Worked On
+Waiting for owner approval for C0.2.
 
 ## What Has Been Completed
 Created the repository baseline documents:
@@ -136,9 +142,14 @@ None
 None
 
 ## Required Human Approvals
-- Checkpoint C0.1 requires Project Owner approval.
+- Checkpoint C0.2 requires Project Owner approval.
 
 ## Latest Validation
+VR-002 (For C0.2)
+
+## Repository State
+Branch: checkpoint/C0.2-change-control-baseline
+Working tree: C0.2 change-control templates added.
 Cross-document consistency review performed; root-level baseline documents created.
 VR-20260910-001
 Cross-document consistency review passed successfully.
@@ -169,6 +180,7 @@ None
 None
 
 ## Important Recent Changes
+Created C0.2 change-control templates. Passed validation. Awaiting approval.
 Established the execution substrate based on the frozen foundation documents. Created repository baseline pointer documents.
 Established the repository baseline documents (PRODUCT, REQUIREMENTS, ARCHITECTURE, TECHNOLOGY, EVALUATION, THREAT_MODEL, DEVELOPMENT).
 Established the baseline documentation for C0.1.
@@ -179,6 +191,7 @@ Established the repository baseline based on the frozen foundation documents.
 Do not modify the frozen foundation documents. Do not jump ahead to Phase 1. Do not introduce arbitrary dependencies or code architectures not approved by the foundation. Do not proceed to C0.2 until C0.1 is approved.
 
 ## Next Permitted Action
+Wait for owner approval for C0.2.
 Wait for owner approval for C0.1.
 Wait for C0.1 human approval before proceeding.
 Wait for human approval of C0.1.
@@ -191,6 +204,7 @@ Wait for owner approval of C0.1.
 ## Resume Instructions
 1. Inspect Git state.
 2. Read PROJECT_STATE.md and HANDOFF_RECORD.md to confirm consistency.
+3. Wait for owner approval for C0.2.
 3. Verify if C0.1 has been approved by the project owner.
 3. Verify if human approval for C0.1 has been granted.
 4. If approved, proceed with C0.2. If not, wait.

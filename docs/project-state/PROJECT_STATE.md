@@ -7,6 +7,7 @@ GroundTruth
 1.1
 
 ## Last Updated
+2026-09-15 06:33 UTC
 $(date -u +"%Y-%m-%d %H:%M UTC")
 2026-09-05 06:35 UTC
 2026-09-04 06:25 UTC
@@ -15,10 +16,19 @@ $(date -u +"%Y-%m-%d %H:%M UTC")
 Phase 0 — Project Foundation
 
 ## Current Checkpoint
-C0.1 — Repository Baseline
+C0.2 — Change-Control Baseline
 
 ## Checkpoint Status
 REVIEW (PENDING HUMAN APPROVAL)
+
+## Completed Checkpoints
+- C0.1
+
+## Active Work
+Establishing explicit change-control mechanism.
+
+## Active Branch
+checkpoint/C0.2-change-control-baseline
 REVIEW
 
 ## Completed Checkpoints
@@ -51,10 +61,13 @@ None
 None
 
 ## Required Approvals
-- Checkpoint C0.1 (Owner Approval Required)
 - Checkpoint C0.2 (Owner Approval Required)
 
 ## Latest Validation
+VR-002
+
+## Repository State
+Clean baseline establishing execution substrate with C0.1 artifacts. Change-control templates created.
 Cross-document consistency review.
 VR-20260910-001
 
@@ -82,6 +95,7 @@ None
 None
 
 ## Next Permitted Action
+Wait for owner approval for C0.2.
 Await human approval for C0.1 before proceeding to C0.2.
 Wait for project owner review of C0.1.
 Await human approval for Checkpoint C0.1.

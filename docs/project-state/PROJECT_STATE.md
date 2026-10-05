@@ -8,6 +8,7 @@ GroundTruth
 
 ## Last Updated
 2026-10-02 06:41 UTC
+2026-09-16 06:33 UTC
 
 ## Current Phase
 Phase 0 — Project Foundation
@@ -26,6 +27,10 @@ Waiting for human approval for C0.2.
 
 ## Active Branch
 checkpoint/C0.2-blocked
+Establishing explicit change-control mechanism.
+
+## Active Branch
+checkpoint/C0.2-change-control-baseline
 
 ## Active Issue
 None

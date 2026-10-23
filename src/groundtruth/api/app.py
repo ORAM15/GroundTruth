@@ -215,18 +215,23 @@ async def ingest_document(
             "chunks": already.chunk_count,
             "duplicate": True,
         }
+    # Sliced ingestion (GT-10): embed + commit at most
+    # store.INGEST_SLICE_SIZE chunks per transaction, so one request never
+    # does unbounded work regardless of document size. If a slice fails,
+    # the store deletes the partial document before the error propagates,
+    # so an EmbeddingError here still means "nothing was stored" — exactly
+    # what the old embed-everything-then-persist flow guaranteed.
     try:
-        vectors = embedding_provider.embed([chunk.text for chunk in version.chunks])
+        stored = store.persist_document_sliced(
+            session_factory,
+            document,
+            version,
+            embed_slice=embedding_provider.embed,
+            model_provider=getattr(embedding_provider, "provider_name", PROVIDER_NAME),
+            model_name=embedding_provider.model_name,
+        )
     except EmbeddingError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
-    stored = store.persist_document(
-        session_factory,
-        document,
-        version,
-        embeddings=vectors,
-        model_provider=getattr(embedding_provider, "provider_name", PROVIDER_NAME),
-        model_name=embedding_provider.model_name,
-    )
     return {
         "status": "stored",
         "document_id": stored.document_id,

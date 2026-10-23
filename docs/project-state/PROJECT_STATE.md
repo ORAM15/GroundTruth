@@ -1,3 +1,11 @@
+> **OWNER DECISION — 2026-10-23 (Phase 0):** Checkpoint C0.2 is recorded as ACCEPTED /
+> superseded by the project owner. The checkpoint-gate model is replaced by an
+> issue-backlog model (see the new `AGENTS.md`): work proceeds issue by issue, CI is the
+> gate, and human approval happens at PR merge. The former autonomy contract files are
+> preserved as history under `docs/archive/autonomy/`. First milestone issues: GT-1 to
+> GT-7 (persistence, retrieval wiring, grounded answers, UI, evaluation, deploy,
+> portfolio pack).
+
 # PROJECT STATE
 
 ## Project

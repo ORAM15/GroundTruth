@@ -1,0 +1,19 @@
+# Render Blueprint — one free web service built from the Dockerfile.
+# Create it via Render Dashboard -> New -> Blueprint (point it at this repo),
+# or New -> Web Service with "Docker" runtime and this repo selected.
+# DATABASE_URL and GEMINI_API_KEY are sync: false on purpose: their values
+# are secrets that the owner pastes into the Render dashboard, never into git.
+services:
+  - type: web
+    name: groundtruth
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      # GT_MIN_EVIDENCE_SCORE intentionally unset: the app default (0.35) applies.

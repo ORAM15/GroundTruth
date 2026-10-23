@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import date, datetime
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import Date, DateTime, ForeignKey, Integer, JSON, String, Text, create_engine
+from sqlalchemy import JSON, Date, DateTime, ForeignKey, Integer, String, Text, create_engine, text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, sessionmaker
 
 
@@ -19,7 +19,7 @@ class DocumentRow(Base):
     source_uri: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     metadata_json: Mapped[dict] = mapped_column(JSON, default=dict)
-    versions: Mapped[list["DocumentVersionRow"]] = relationship(back_populates="document", cascade="all, delete-orphan")
+    versions: Mapped[list[DocumentVersionRow]] = relationship(back_populates="document", cascade="all, delete-orphan")
 
 
 class DocumentVersionRow(Base):
@@ -32,7 +32,7 @@ class DocumentVersionRow(Base):
     effective_from: Mapped[date | None] = mapped_column(Date)
     effective_until: Mapped[date | None] = mapped_column(Date)
     document: Mapped[DocumentRow] = relationship(back_populates="versions")
-    chunks: Mapped[list["ChunkRow"]] = relationship(back_populates="version", cascade="all, delete-orphan")
+    chunks: Mapped[list[ChunkRow]] = relationship(back_populates="version", cascade="all, delete-orphan")
 
 
 class ChunkRow(Base):
@@ -65,7 +65,38 @@ class ChunkEmbeddingRow(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
 
+def normalize_database_url(database_url: str) -> str:
+    """Rewrite a bare Postgres URL to use the psycopg (v3) driver.
+
+    Hosted providers such as Neon hand out ``postgresql://`` (or the older
+    ``postgres://``) connection strings. SQLAlchemy resolves those to the
+    psycopg2 dialect by default, but this project ships psycopg v3, so a
+    bare URL would fail at connect time in production. Already-qualified
+    URLs (``postgresql+psycopg://``, ``postgresql+psycopg2://``) and
+    non-Postgres URLs (``sqlite://``) are returned untouched.
+    """
+    for prefix in ("postgresql://", "postgres://"):
+        if database_url.startswith(prefix):
+            return "postgresql+psycopg://" + database_url[len(prefix) :]
+    return database_url
+
+
+def ensure_extensions(engine) -> None:
+    """Create the Postgres extensions the schema depends on, if any.
+
+    The ``chunk_embeddings`` table uses the pgvector ``vector`` type, which
+    requires ``CREATE EXTENSION vector`` on a fresh database (e.g. Neon)
+    before ``create_all`` can create the table. This is a no-op for every
+    other dialect (SQLite in tests/development has no extensions).
+    """
+    if engine.dialect.name != "postgresql":
+        return
+    with engine.begin() as connection:
+        connection.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+
+
 def create_session_factory(database_url: str):
-    engine = create_engine(database_url, pool_pre_ping=True)
+    engine = create_engine(normalize_database_url(database_url), pool_pre_ping=True)
+    ensure_extensions(engine)
     Base.metadata.create_all(engine)
     return sessionmaker(bind=engine), engine

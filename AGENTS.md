@@ -1,77 +1,68 @@
-# AGENTS.md
+# AGENTS.md — GroundTruth (Phase 0 replacement, drafted 2026-10-23)
 
 ## Project purpose
 
-GroundTruth is intended to become a production-grade trustworthy RAG answer engine. The project should demonstrate grounded retrieval and generation, citations, abstention, prompt-injection defenses, evaluation, observability, security, testing, deployment, and professional UX.
+GroundTruth is a production-grade, trustworthy RAG answer engine: answers grounded in a
+controlled knowledge base, with citations, honest abstention when evidence is insufficient,
+prompt-injection defenses, and measured evaluation. It must be publicly deployed.
+Full product definition: see the owner's Master Project Instruction (PRODUCT.md /
+REQUIREMENTS.md are the in-repo summaries).
 
-## Current repository state
+## How work is organized (replaces the checkpoint-gate system)
 
-This repository is intentionally reserved and currently contains no implementation. Do not fabricate scaffolding, sample metrics, fake evaluation results, or placeholder production behavior merely to make the repository appear active.
+- Work lives in **GitHub Issues**. Each issue is one bounded unit with acceptance criteria.
+- **One issue = one branch = one pull request.** Keep PRs small and reviewable.
+- The old checkpoint system (C0.x gates, PROJECT_STATE approval blocks, "STOP and report
+  the blocker" contracts in `docs/autonomy/`) is **retired as of 2026-10-23 by owner
+  decision**. Those documents are kept as history only; they no longer gate work.
+  C0.2 is recorded as superseded by this decision.
+- **If you are blocked:** say so once, in the issue you are working on (what is missing and
+  what would unblock it), then move to the next independent issue. Never open a PR whose
+  only purpose is to report a blocker. Never open a duplicate PR for work already proposed.
+- A fresh session resumes simply: read this file, read the open issues, pick the top
+  unblocked issue, inspect the relevant code, implement, test, open a PR.
+
+## The gate is CI, not pre-approval
+
+- Human approval happens **at PR merge**, by the owner. Work does not need approval to start.
+- A PR may be proposed for merge only when: tests pass in CI, the change matches the issue's
+  acceptance criteria, and the PR description states what changed, what was tested, and what
+  remains uncertain.
+- Do not fabricate validation. If tests were not run, say so in the PR.
 
 ## Engineering principles
 
-- Build from explicit product and architecture requirements.
-- Prefer evidence and measurable behavior over claims.
-- Treat GitHub as the source of truth.
-- AI agents are implementation assistants, not architectural authorities.
-- Explain and review important engineering decisions.
-- Keep changes small, testable, and reviewable.
-
-## AI Fresh Session Resume Protocol
-
-**CRITICAL:** Every fresh AI session must follow this exact sequence before making any changes.
-
-1. STOP — do not modify anything
-2. Inspect Git/repository state
-3. Read `docs/project-state/PROJECT_STATE.md`
-4. Read `docs/project-state/HANDOFF_RECORD.md`
-5. Compare state for consistency
-6. Read governing project documents (Constitution, Requirements, Architecture, Technology, Phase Plan)
-7. Read relevant decisions in `docs/project-state/DECISION_LOG.md`
-8. Identify current checkpoint
-9. Verify checkpoint prerequisites
-10. Inspect latest validation in `docs/project-state/VALIDATION_RECORD.md`
-11. Inspect known defects/failures
-12. Inspect active implementation
-13. Check approvals/blockers
-14. Confirm permitted scope based on checkpoint
-15. Determine exact next action
-16. Only now plan implementation
-17. Implement bounded work
-18. Validate
-19. Record evidence
-20. Update project state
-21. Synchronize GitHub
-22. Prepare next handoff
-
-AI agents must operate within the boundaries of the AUTONOMOUS_EXECUTION_CONTRACT (see `docs/autonomy/AUTONOMOUS_EXECUTION_CONTRACT.md`) and respect the constraints of the Checkpoint System.
+- Build from the product definition; prefer the simplest implementation that genuinely
+  satisfies a requirement. No buzzword technology without a stated justification.
+- Explain important decisions (what / why / alternatives / trade-offs) in the PR description.
+- AI agents are implementation assistants, not architectural authorities; flag — do not
+  silently make — architecture changes.
+- One driver per repository at a time. Other agents review; they do not write in parallel.
 
 ## Trustworthiness requirements
 
 - Never fabricate citations or source support.
-- Implement explicit abstention / "I don't know" behavior where evidence is insufficient.
-- Treat retrieved documents as untrusted input and defend against prompt injection.
+- Implement explicit abstention ("I don't know") where evidence is insufficient.
+- Treat retrieved documents as untrusted data, never as instructions; defend against
+  prompt injection in design and tests.
 - Keep model output separate from authorization and security decisions.
-- Do not report evaluation, latency, cost, or quality metrics unless they were actually measured.
-
-## Development workflow
-
-1. Inspect current repository state and project documentation.
-2. Establish or review the architecture before substantial implementation.
-3. Implement bounded changes.
-4. Test retrieval, generation, failure cases, and security-sensitive behavior as applicable.
-5. Inspect the diff and report what changed, what was tested, failures, and remaining uncertainty.
+- Never report evaluation, latency, cost, or quality metrics that were not actually measured.
 
 ## Security and secrets
 
 - Never commit API keys, tokens, credentials, `.env` files, or private data.
-- Use environment variables or an appropriate secret manager for credentials.
-- Do not treat the LLM as a security boundary.
-- Enforce authentication, authorization, validation, and other security controls in application code/infrastructure.
+- Secrets live in environment variables / the deployment platform's secret store only.
+- Do not treat the LLM as a security boundary; enforce validation and access control in code.
+
+## Cost rule
+
+- Free tier only: Gemini API (AI Studio free tier), Neon free Postgres + pgvector,
+  Render free web service, Vercel Hobby, GitHub Actions on this public repo.
+- If a change would require a paid service, stop that change (not the whole project),
+  note it in the issue, and propose a free alternative.
 
 ## Git discipline
 
-- Keep commits and pull requests focused.
-- Do not make unrelated cleanup changes.
+- Keep commits and PRs focused; no unrelated cleanup in a feature PR.
 - Do not claim a feature is complete without relevant validation.
 - Review AI-generated changes before merging.

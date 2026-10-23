@@ -20,10 +20,30 @@ DEFAULT_MODEL = "gemini-2.5-flash"
 MODEL_ENV = "GT_GENERATION_MODEL"
 PROVIDER_NAME = "google-gemini"
 
+# Cap on how much of Google's error message is surfaced in GenerationError.
+MAX_ERROR_MESSAGE_CHARS = 500
+
 
 class GenerationError(RuntimeError):
     """Raised when an answer cannot be generated (missing key, API failure,
     or a malformed response)."""
+
+
+def _api_error_detail(response: httpx.Response) -> str:
+    """Best-effort human-readable detail for an error response: Google's
+    ``error.message`` from the JSON body when present (it contains no
+    secrets), otherwise the HTTP status line. Truncated so a pathological
+    body cannot flood logs or the UI. Mirrors the embeddings provider."""
+    detail = ""
+    try:
+        message = response.json()["error"]["message"]
+        if isinstance(message, str):
+            detail = message
+    except (ValueError, KeyError, TypeError):
+        detail = ""
+    if not detail:
+        detail = response.reason_phrase or f"HTTP {response.status_code}"
+    return detail[:MAX_ERROR_MESSAGE_CHARS]
 
 
 @runtime_checkable
@@ -73,9 +93,13 @@ class GeminiGenerationProvider:
                     "Content-Type": "application/json",
                 },
             )
-            response.raise_for_status()
         except httpx.HTTPError as exc:
             raise GenerationError(f"Gemini generation request failed: {exc}") from exc
+        if response.is_error:
+            raise GenerationError(
+                f"Gemini generation request failed with HTTP {response.status_code}: "
+                f"{_api_error_detail(response)}"
+            )
         try:
             payload = response.json()
             parts = payload["candidates"][0]["content"]["parts"]

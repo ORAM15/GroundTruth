@@ -20,10 +20,35 @@ GEMINI_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
 DEFAULT_MODEL = "gemini-embedding-001"
 PROVIDER_NAME = "google-gemini"
 
+# batchEmbedContents rejects requests with more than 100 inputs
+# (400 INVALID_ARGUMENT), so embed() splits larger inputs into groups
+# of at most this size — a 46-page PDF can parse to ~1000 chunks.
+MAX_BATCH_INPUTS = 100
+
+# Cap on how much of Google's error message is surfaced in EmbeddingError.
+MAX_ERROR_MESSAGE_CHARS = 500
+
 
 class EmbeddingError(RuntimeError):
     """Raised when embeddings cannot be produced (missing key, API failure,
     or a malformed response)."""
+
+
+def _api_error_detail(response: httpx.Response) -> str:
+    """Best-effort human-readable detail for an error response: Google's
+    ``error.message`` from the JSON body when present (it contains no
+    secrets), otherwise the HTTP status line. Truncated so a pathological
+    body cannot flood logs or the UI."""
+    detail = ""
+    try:
+        message = response.json()["error"]["message"]
+        if isinstance(message, str):
+            detail = message
+    except (ValueError, KeyError, TypeError):
+        detail = ""
+    if not detail:
+        detail = response.reason_phrase or f"HTTP {response.status_code}"
+    return detail[:MAX_ERROR_MESSAGE_CHARS]
 
 
 @runtime_checkable
@@ -64,6 +89,18 @@ class GeminiEmbeddingProvider:
     def embed(self, texts: Sequence[str]) -> list[list[float]]:
         if not texts:
             return []
+        vectors: list[list[float]] = []
+        for start in range(0, len(texts), MAX_BATCH_INPUTS):
+            batch = texts[start : start + MAX_BATCH_INPUTS]
+            vectors.extend(self._embed_batch(batch))
+        if len(vectors) != len(texts):
+            raise EmbeddingError(
+                f"Gemini returned {len(vectors)} embeddings for {len(texts)} texts."
+            )
+        return vectors
+
+    def _embed_batch(self, texts: Sequence[str]) -> list[list[float]]:
+        """One batchEmbedContents call for at most MAX_BATCH_INPUTS texts."""
         url = f"{GEMINI_BASE_URL}/models/{self.model_name}:batchEmbedContents"
         body = {
             "requests": [
@@ -83,9 +120,13 @@ class GeminiEmbeddingProvider:
                     "Content-Type": "application/json",
                 },
             )
-            response.raise_for_status()
         except httpx.HTTPError as exc:
             raise EmbeddingError(f"Gemini embedding request failed: {exc}") from exc
+        if response.is_error:
+            raise EmbeddingError(
+                f"Gemini embedding request failed with HTTP {response.status_code}: "
+                f"{_api_error_detail(response)}"
+            )
         try:
             payload = response.json()
             embeddings = payload["embeddings"]

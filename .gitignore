@@ -1,2 +1,5 @@
 __pycache__/
 .venv/
+# GT-5 corpus PDFs are generated from the committed .txt sources
+# (groundtruth.evaluation.golden.generate_corpus); never commit the blobs.
+src/groundtruth/evaluation/golden/corpus_pdf/

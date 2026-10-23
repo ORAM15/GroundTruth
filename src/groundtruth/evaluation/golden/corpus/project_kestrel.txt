@@ -1,0 +1,6 @@
+Project Kestrel is a logistics tracking platform built by the Northwind software team.
+Priya Nair leads the Kestrel engineering group as principal engineer.
+The Kestrel platform stores shipment records in a PostgreSQL 16 database.
+Kestrel passed its security audit in November 2025 with zero critical findings.
+The beta release of Kestrel is scheduled for 14 March 2026.
+Kestrel sends delay alerts to warehouse managers by email every hour.

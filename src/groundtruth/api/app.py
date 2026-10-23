@@ -17,6 +17,14 @@ from groundtruth.evidence.embeddings import (
     EmbeddingProvider,
     GeminiEmbeddingProvider,
 )
+from groundtruth.generation import (
+    EvidencePassage,
+    GeminiGenerationProvider,
+    GenerationError,
+    GenerationProvider,
+    build_grounded_prompt,
+    verify_citations,
+)
 from groundtruth.ingestion.pdf import PdfLoader, StructureAwareChunker
 from groundtruth.retrieval import service as retrieval_service
 
@@ -49,6 +57,8 @@ class QueryResponse(BaseModel):
     decision: str
     message: str
     evidence: list[EvidenceItem] = Field(default_factory=list)
+    answer: str | None = None
+    citations: list[EvidenceItem] = Field(default_factory=list)
 
 
 @lru_cache(maxsize=4)
@@ -75,6 +85,15 @@ def get_embedding_provider() -> EmbeddingProvider | None:
     return GeminiEmbeddingProvider()
 
 
+def get_generation_provider() -> GenerationProvider | None:
+    """FastAPI dependency: the configured generation provider, or ``None``
+    when no provider is configured (currently: ``GEMINI_API_KEY`` unset).
+    Tests override this dependency with a deterministic fake provider."""
+    if not os.getenv("GEMINI_API_KEY"):
+        return None
+    return GeminiGenerationProvider()
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -89,6 +108,7 @@ def ready() -> dict[str, str]:
 
 SessionFactoryDep = Annotated[Any, Depends(get_session_factory)]
 EmbeddingProviderDep = Annotated[EmbeddingProvider | None, Depends(get_embedding_provider)]
+GenerationProviderDep = Annotated[GenerationProvider | None, Depends(get_generation_provider)]
 
 
 @app.post("/api/v1/documents")
@@ -182,6 +202,7 @@ def query(
     request: QueryRequest,
     session_factory: SessionFactoryDep,
     embedding_provider: EmbeddingProviderDep,
+    generation_provider: GenerationProviderDep,
 ) -> QueryResponse:
     # Trust behavior: until an evidence store is configured, never fabricate an answer.
     if session_factory is None:
@@ -203,8 +224,15 @@ def query(
         )
     except EmbeddingError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
+    # The generation provider is only consulted past this gate: every
+    # abstention path above returns without calling it.
     if not outcome.sufficient:
         return QueryResponse(decision="ABSTAIN", message=outcome.reason)
+    if generation_provider is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Answer generation is not configured: GEMINI_API_KEY is not set.",
+        )
     evidence = [
         EvidenceItem(
             chunk_id=hit.result.chunk.chunk_id,
@@ -222,12 +250,40 @@ def query(
         )
         for hit in outcome.hits
     ]
+    # The prompt is built from the chunks' FULL text — the EvidenceItem
+    # snippet is a display truncation and would ground answers in fragments.
+    prompt = build_grounded_prompt(
+        request.question,
+        [
+            EvidencePassage(chunk_id=hit.result.chunk.chunk_id, text=hit.result.chunk.text)
+            for hit in outcome.hits
+        ],
+    )
+    try:
+        answer = generation_provider.generate(prompt)
+    except GenerationError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    # Trust gate: an answer is returned only if every citation it makes
+    # resolves to a chunk that was actually retrieved. Unverifiable text is
+    # never returned as an answer; the query abstains instead.
+    verification = verify_citations(answer, {item.chunk_id for item in evidence})
+    if not verification.ok:
+        return QueryResponse(
+            decision="ABSTAIN",
+            message=(
+                f"Generated answer failed citation verification ({verification.reason}); "
+                "abstaining rather than returning an unverifiable answer."
+            ),
+        )
+    by_chunk_id = {item.chunk_id: item for item in evidence}
+    citations = [by_chunk_id[chunk_id] for chunk_id in verification.cited_ids]
     return QueryResponse(
-        decision="EVIDENCE_FOUND",
+        decision="ANSWERED",
         message=(
-            f"Found {len(evidence)} supporting chunk(s) above the evidence "
-            "threshold. Grounded answer generation arrives in GT-3; this "
-            "response returns the retrieved evidence only."
+            f"Answered from {len(citations)} cited source(s); every citation "
+            "was verified against the retrieved evidence."
         ),
         evidence=evidence,
+        answer=answer,
+        citations=citations,
     )

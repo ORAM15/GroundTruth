@@ -22,7 +22,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from test_gt1_persistence import TWO_PAGE_PDF
 
-from groundtruth.api.app import app, get_embedding_provider, get_session_factory
+from groundtruth.api.app import (
+    app,
+    get_embedding_provider,
+    get_generation_provider,
+    get_session_factory,
+)
 from groundtruth.evidence.db import Base
 
 VOCAB = [
@@ -68,6 +73,19 @@ class TopicEmbeddingProvider:
         return vectors
 
 
+class CitingGenerationProvider:
+    """Minimal GT-3 test double: answers with a citation to the first
+    evidence block in the prompt, so evidence-sufficient queries reach the
+    ANSWERED decision instead of a 503 for an unconfigured provider."""
+
+    provider_name = "fake-provider"
+    model_name = "fake-generation-v1"
+
+    def generate(self, prompt: str) -> str:
+        chunk_id = re.search(r'<evidence id="([^"]+)"', prompt).group(1)
+        return f"Grounded answer citing the evidence [{chunk_id}]."
+
+
 @pytest.fixture()
 def client(tmp_path):
     engine = create_engine(f"sqlite:///{tmp_path}/gt2.db")
@@ -76,6 +94,7 @@ def client(tmp_path):
     fake = TopicEmbeddingProvider()
     app.dependency_overrides[get_session_factory] = lambda: factory
     app.dependency_overrides[get_embedding_provider] = lambda: fake
+    app.dependency_overrides[get_generation_provider] = lambda: CitingGenerationProvider()
     with TestClient(app) as test_client:
         yield test_client, fake, factory
     app.dependency_overrides.clear()
@@ -101,7 +120,8 @@ def test_query_finds_evidence_with_right_chunk_and_page(client):
     response = ask(test_client, "How does GroundTruth stores uploaded documents as evidence?")
     assert response.status_code == 200
     body = response.json()
-    assert body["decision"] == "EVIDENCE_FOUND"
+    # GT-3: sufficient evidence now proceeds to a verified, cited answer.
+    assert body["decision"] == "ANSWERED"
     assert body["evidence"], "expected at least one evidence item"
     top = body["evidence"][0]
     assert top["document_id"] == stored["document_id"]
@@ -160,7 +180,8 @@ def test_threshold_env_override_is_respected(client, monkeypatch):
     upload(test_client)
     question = "GroundTruth stores uploaded documents evidence retrieval"
     passing = ask(test_client, question)
-    assert passing.json()["decision"] == "EVIDENCE_FOUND"
+    # GT-3: sufficient evidence now proceeds to a verified, cited answer.
+    assert passing.json()["decision"] == "ANSWERED"
 
     monkeypatch.setenv("GT_MIN_EVIDENCE_SCORE", "0.95")
     blocked = ask(test_client, question)

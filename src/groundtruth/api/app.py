@@ -3,9 +3,12 @@ from __future__ import annotations
 import os
 from datetime import UTC, datetime
 from functools import lru_cache
+from pathlib import Path
 from typing import Annotated, Any
 
 from fastapi import Depends, FastAPI, HTTPException, UploadFile
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from groundtruth.domain.models import Document
@@ -31,6 +34,8 @@ from groundtruth.retrieval import service as retrieval_service
 app = FastAPI(title="GroundTruth", version="0.1.0")
 
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024  # 25 MB upload limit for the MVP.
+
+STATIC_DIR = Path(__file__).parent / "static"
 
 
 class QueryRequest(BaseModel):
@@ -59,6 +64,15 @@ class QueryResponse(BaseModel):
     evidence: list[EvidenceItem] = Field(default_factory=list)
     answer: str | None = None
     citations: list[EvidenceItem] = Field(default_factory=list)
+
+
+class DocumentListItem(BaseModel):
+    document_id: str
+    title: str
+    filename: str | None = None
+    pages: int | None = None
+    chunk_count: int
+    created_at: datetime | None = None
 
 
 @lru_cache(maxsize=4)
@@ -94,6 +108,14 @@ def get_generation_provider() -> GenerationProvider | None:
     return GeminiGenerationProvider()
 
 
+@app.get("/")
+def index() -> FileResponse:
+    """The one-page UI. A single static page; all data comes from the
+    JSON API below, and the page renders document-derived text only via
+    textContent (documents are untrusted input)."""
+    return FileResponse(STATIC_DIR / "index.html", media_type="text/html")
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -109,6 +131,28 @@ def ready() -> dict[str, str]:
 SessionFactoryDep = Annotated[Any, Depends(get_session_factory)]
 EmbeddingProviderDep = Annotated[EmbeddingProvider | None, Depends(get_embedding_provider)]
 GenerationProviderDep = Annotated[GenerationProvider | None, Depends(get_generation_provider)]
+
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+
+@app.get("/api/v1/documents", response_model=list[DocumentListItem])
+def list_documents(session_factory: SessionFactoryDep) -> list[DocumentListItem]:
+    if session_factory is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Document store is not configured: DATABASE_URL is not set.",
+        )
+    return [
+        DocumentListItem(
+            document_id=summary.document_id,
+            title=summary.title,
+            filename=summary.filename,
+            pages=summary.pages,
+            chunk_count=summary.chunk_count,
+            created_at=summary.created_at,
+        )
+        for summary in store.list_documents(session_factory)
+    ]
 
 
 @app.post("/api/v1/documents")

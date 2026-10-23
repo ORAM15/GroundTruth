@@ -3,7 +3,18 @@ from __future__ import annotations
 from datetime import date, datetime
 
 from pgvector.sqlalchemy import Vector
-from sqlalchemy import JSON, Date, DateTime, ForeignKey, Integer, String, Text, create_engine, text
+from sqlalchemy import (
+    JSON,
+    Date,
+    DateTime,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    create_engine,
+    event,
+    text,
+)
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, sessionmaker
 
 
@@ -97,6 +108,17 @@ def ensure_extensions(engine) -> None:
 
 def create_session_factory(database_url: str):
     engine = create_engine(normalize_database_url(database_url), pool_pre_ping=True)
+    if engine.dialect.name == "sqlite":
+        # SQLite does not enforce foreign keys unless asked, per connection.
+        # Postgres (production) always enforces them, so turn enforcement on
+        # here to make local behaviour match production: an FK violation
+        # should fail a test, not a live upload.
+        @event.listens_for(engine, "connect")
+        def _enable_sqlite_foreign_keys(dbapi_connection, connection_record) -> None:
+            cursor = dbapi_connection.cursor()
+            cursor.execute("PRAGMA foreign_keys=ON")
+            cursor.close()
+
     ensure_extensions(engine)
     Base.metadata.create_all(engine)
     return sessionmaker(bind=engine), engine

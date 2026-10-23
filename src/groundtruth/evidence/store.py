@@ -141,57 +141,67 @@ def persist_document(
                 duplicate=True,
             )
 
-        if session.get(DocumentRow, document.document_id) is None:
-            session.add(
-                DocumentRow(
-                    id=document.document_id,
-                    title=document.title,
-                    source_type=document.source_type,
-                    source_uri=document.source_uri,
-                    metadata_json=dict(document.metadata),
-                )
-            )
-        session.add(
-            DocumentVersionRow(
-                id=version.version_id,
-                document_id=document.document_id,
-                version_label=version.version_label,
-                source_uri=version.source_uri,
-                content_hash=version.content_hash,
-                effective_from=version.effective_from,
-                effective_until=version.effective_until,
-            )
-        )
-        for chunk in version.chunks:
-            session.add(
-                ChunkRow(
-                    id=chunk.chunk_id,
-                    document_version_id=version.version_id,
-                    section_id=chunk.section_id,
-                    ordinal=chunk.ordinal,
-                    text=chunk.text,
-                    canonical_embedding_text=chunk.text,
-                    content_hash=chunk.content_hash,
-                    page_start=chunk.page_start,
-                    page_end=chunk.page_end,
-                    source_span=dict(chunk.source_span),
-                    structural_path=list(chunk.structural_path),
-                    representation_version=chunk.representation_version,
-                )
-            )
-        if embeddings is not None:
-            for chunk, vector in zip(version.chunks, embeddings, strict=True):
+        # Insert order must be deterministic: the row classes declare FK
+        # columns but ChunkEmbeddingRow has no ORM relationship to ChunkRow,
+        # so the unit of work cannot infer that chunks must be inserted
+        # before their embeddings. Without the explicit flushes below, a
+        # single commit() may flush chunk_embeddings first, which an
+        # FK-enforcing database (Postgres in production) rejects. Flush in
+        # dependency order inside this transaction instead: document +
+        # version, then chunks, then embeddings.
+        try:
+            if session.get(DocumentRow, document.document_id) is None:
                 session.add(
-                    ChunkEmbeddingRow(
-                        chunk_id=chunk.chunk_id,
-                        model_provider=model_provider,
-                        model_name=model_name,
-                        representation_version=chunk.representation_version,
-                        dimensions=len(vector),
-                        vector=list(vector),
+                    DocumentRow(
+                        id=document.document_id,
+                        title=document.title,
+                        source_type=document.source_type,
+                        source_uri=document.source_uri,
+                        metadata_json=dict(document.metadata),
                     )
                 )
-        try:
+            session.add(
+                DocumentVersionRow(
+                    id=version.version_id,
+                    document_id=document.document_id,
+                    version_label=version.version_label,
+                    source_uri=version.source_uri,
+                    content_hash=version.content_hash,
+                    effective_from=version.effective_from,
+                    effective_until=version.effective_until,
+                )
+            )
+            session.flush()
+            for chunk in version.chunks:
+                session.add(
+                    ChunkRow(
+                        id=chunk.chunk_id,
+                        document_version_id=version.version_id,
+                        section_id=chunk.section_id,
+                        ordinal=chunk.ordinal,
+                        text=chunk.text,
+                        canonical_embedding_text=chunk.text,
+                        content_hash=chunk.content_hash,
+                        page_start=chunk.page_start,
+                        page_end=chunk.page_end,
+                        source_span=dict(chunk.source_span),
+                        structural_path=list(chunk.structural_path),
+                        representation_version=chunk.representation_version,
+                    )
+                )
+            session.flush()
+            if embeddings is not None:
+                for chunk, vector in zip(version.chunks, embeddings, strict=True):
+                    session.add(
+                        ChunkEmbeddingRow(
+                            chunk_id=chunk.chunk_id,
+                            model_provider=model_provider,
+                            model_name=model_name,
+                            representation_version=chunk.representation_version,
+                            dimensions=len(vector),
+                            vector=list(vector),
+                        )
+                    )
             session.commit()
         except IntegrityError:
             # A concurrent upload of the same content won the race; treat this

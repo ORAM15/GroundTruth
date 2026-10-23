@@ -18,6 +18,7 @@ from groundtruth.evidence.embeddings import (
     GeminiEmbeddingProvider,
 )
 from groundtruth.ingestion.pdf import PdfLoader, StructureAwareChunker
+from groundtruth.retrieval import service as retrieval_service
 
 app = FastAPI(title="GroundTruth", version="0.1.0")
 
@@ -29,9 +30,25 @@ class QueryRequest(BaseModel):
     top_k: int = Field(default=10, ge=1, le=100)
 
 
+class EvidenceItem(BaseModel):
+    chunk_id: str
+    document_id: str
+    title: str | None = None
+    filename: str | None = None
+    page_start: int | None = None
+    page_end: int | None = None
+    score: float  # Fused hybrid (RRF) score of the returned ranking.
+    dense_score: float | None = None  # Raw dense cosine similarity for this chunk.
+    lexical_rank: int | None = None
+    dense_rank: int | None = None
+    method: str
+    snippet: str
+
+
 class QueryResponse(BaseModel):
     decision: str
     message: str
+    evidence: list[EvidenceItem] = Field(default_factory=list)
 
 
 @lru_cache(maxsize=4)
@@ -157,10 +174,60 @@ async def ingest_document(
     }
 
 
+SNIPPET_CHARS = 300
+
+
 @app.post("/api/v1/query", response_model=QueryResponse)
-def query(request: QueryRequest) -> QueryResponse:
+def query(
+    request: QueryRequest,
+    session_factory: SessionFactoryDep,
+    embedding_provider: EmbeddingProviderDep,
+) -> QueryResponse:
     # Trust behavior: until an evidence store is configured, never fabricate an answer.
+    if session_factory is None:
+        return QueryResponse(
+            decision="ABSTAIN",
+            message="No authorized evidence store is configured; GroundTruth will not fabricate an answer.",
+        )
+    if embedding_provider is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Embeddings are not configured: GEMINI_API_KEY is not set.",
+        )
+    try:
+        outcome = retrieval_service.search(
+            session_factory,
+            embedding_provider,
+            request.question,
+            top_k=request.top_k,
+        )
+    except EmbeddingError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    if not outcome.sufficient:
+        return QueryResponse(decision="ABSTAIN", message=outcome.reason)
+    evidence = [
+        EvidenceItem(
+            chunk_id=hit.result.chunk.chunk_id,
+            document_id=hit.document_id,
+            title=hit.title,
+            filename=hit.filename,
+            page_start=hit.result.chunk.page_start,
+            page_end=hit.result.chunk.page_end,
+            score=hit.result.score,
+            dense_score=hit.dense_score,
+            lexical_rank=hit.result.lexical_rank,
+            dense_rank=hit.result.dense_rank,
+            method=hit.result.method,
+            snippet=hit.result.chunk.text[:SNIPPET_CHARS],
+        )
+        for hit in outcome.hits
+    ]
     return QueryResponse(
-        decision="ABSTAIN",
-        message="No authorized evidence store is configured; GroundTruth will not fabricate an answer.",
+        decision="EVIDENCE_FOUND",
+        message=(
+            f"Found {len(evidence)} supporting chunk(s) above the evidence "
+            "threshold. Grounded answer generation arrives in GT-3; this "
+            "response returns the retrieved evidence only."
+        ),
+        evidence=evidence,
     )

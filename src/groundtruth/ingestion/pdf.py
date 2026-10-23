@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from hashlib import sha256
+from io import BytesIO
 from pathlib import Path
-from typing import Iterable
 
 from groundtruth.domain.models import Chunk, DocumentVersion, Section
 
@@ -22,6 +23,7 @@ class ParsedDocument:
     source_uri: str
     blocks: tuple[ParsedBlock, ...]
     content_hash: str
+    page_count: int = 0
 
 
 class PdfLoader:
@@ -32,6 +34,25 @@ class PdfLoader:
 
         source = Path(path)
         reader = PdfReader(str(source))
+        return self._parse(reader, title=source.stem, source_uri=str(source))
+
+    def load_bytes(
+        self,
+        data: bytes,
+        *,
+        filename: str = "document.pdf",
+        source_uri: str | None = None,
+    ) -> ParsedDocument:
+        """Parse a PDF held in memory (e.g. an HTTP upload) with the same
+        block extraction as :meth:`load`."""
+        from pypdf import PdfReader
+
+        reader = PdfReader(BytesIO(data))
+        title = Path(filename).stem or "document"
+        return self._parse(reader, title=title, source_uri=source_uri or filename)
+
+    @staticmethod
+    def _parse(reader, *, title: str, source_uri: str) -> ParsedDocument:
         blocks: list[ParsedBlock] = []
         page_texts: list[str] = []
         for page_number, page in enumerate(reader.pages, start=1):
@@ -41,10 +62,11 @@ class PdfLoader:
                 blocks.append(ParsedBlock(text=text, page=page_number))
         payload = "\n".join(page_texts)
         return ParsedDocument(
-            title=source.stem,
-            source_uri=str(source),
+            title=title,
+            source_uri=source_uri,
             blocks=tuple(blocks),
             content_hash=sha256(payload.encode("utf-8")).hexdigest(),
+            page_count=len(reader.pages),
         )
 
 

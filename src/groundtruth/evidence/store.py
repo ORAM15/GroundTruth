@@ -14,7 +14,9 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import datetime
 
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 
 from groundtruth.domain.models import Document, DocumentVersion
@@ -32,6 +34,52 @@ class StoredDocument:
     version_id: str
     chunk_count: int
     duplicate: bool
+
+
+@dataclass(frozen=True)
+class DocumentSummary:
+    """One row of the documents list: enough for a UI to show what has
+    been uploaded without loading chunk content."""
+
+    document_id: str
+    title: str
+    filename: str | None
+    pages: int | None
+    chunk_count: int
+    created_at: datetime | None
+
+
+def list_documents(session_factory) -> list[DocumentSummary]:
+    """All stored documents, newest first, with their total chunk count
+    across versions. ``filename``/``pages`` come from the upload metadata
+    recorded at ingest time; documents stored without that metadata (older
+    or programmatic writes) report them as ``None``."""
+    session = session_factory()
+    try:
+        chunk_counts = dict(
+            session.query(DocumentVersionRow.document_id, func.count(ChunkRow.id))
+            .join(ChunkRow, ChunkRow.document_version_id == DocumentVersionRow.id)
+            .group_by(DocumentVersionRow.document_id)
+            .all()
+        )
+        rows = (
+            session.query(DocumentRow)
+            .order_by(DocumentRow.created_at.desc(), DocumentRow.id)
+            .all()
+        )
+        return [
+            DocumentSummary(
+                document_id=row.id,
+                title=row.title,
+                filename=(row.metadata_json or {}).get("filename"),
+                pages=(row.metadata_json or {}).get("pages"),
+                chunk_count=chunk_counts.get(row.id, 0),
+                created_at=row.created_at,
+            )
+            for row in rows
+        ]
+    finally:
+        session.close()
 
 
 def find_stored_version(session_factory, content_hash: str) -> StoredDocument | None:

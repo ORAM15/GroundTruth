@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GroundTruth — evidence-grounded document QA</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <div>
+      <h1>GroundTruth</h1>
+      <p class="tagline">Answers grounded in your documents — cited, or honestly declined.</p>
+    </div>
+    <div class="status" title="Service status from /ready">
+      <span id="status-dot" class="status-dot status-unknown" aria-hidden="true"></span>
+      <span id="status-text">checking status…</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="panel" aria-labelledby="upload-heading">
+    <h2 id="upload-heading">Upload a document</h2>
+    <p class="panel-note">PDF only. The document is parsed, chunked, embedded and stored as evidence.</p>
+    <form id="upload-form">
+      <input type="file" id="file-input" accept="application/pdf,.pdf" required>
+      <button type="submit" id="upload-button">Upload</button>
+    </form>
+    <p id="upload-state" class="state-line" role="status"></p>
+    <div id="upload-result" class="upload-result" hidden></div>
+  </section>
+
+  <section class="panel" aria-labelledby="documents-heading">
+    <h2 id="documents-heading">Documents</h2>
+    <p id="documents-empty" class="empty-state">No documents stored yet. Upload a PDF to begin.</p>
+    <ul id="documents-list" class="documents-list"></ul>
+    <p id="documents-error" class="error-line" role="alert" hidden></p>
+  </section>
+
+  <section class="panel" aria-labelledby="ask-heading">
+    <h2 id="ask-heading">Ask a question</h2>
+    <form id="ask-form">
+      <label class="visually-hidden" for="question-input">Question</label>
+      <input type="text" id="question-input" placeholder="What do the documents say about…?" required>
+      <button type="submit" id="ask-button">Ask</button>
+    </form>
+    <p id="ask-state" class="state-line" role="status"></p>
+    <div id="error-banner" class="error-banner" role="alert" hidden></div>
+    <div id="answer-area" class="answer-area" hidden>
+      <h3 id="answer-heading">Answer</h3>
+      <p id="answer-text" class="answer-text"></p>
+      <div id="citation-chips" class="citation-chips"></div>
+    </div>
+    <div id="abstain-area" class="abstain-area" hidden>
+      <h3>GroundTruth declined to answer</h3>
+      <p id="abstain-message"></p>
+    </div>
+  </section>
+
+  <section class="panel" id="evidence-panel" aria-labelledby="evidence-heading" hidden>
+    <h2 id="evidence-heading">Evidence</h2>
+    <div id="evidence-list" class="evidence-list"></div>
+  </section>
+</main>
+
+<footer>
+  <p>GroundTruth answers only from stored evidence and verifies every citation before showing an answer. When the evidence is not enough, it says so.</p>
+</footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

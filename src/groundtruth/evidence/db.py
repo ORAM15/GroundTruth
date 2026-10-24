@@ -63,6 +63,33 @@ class ChunkRow(Base):
     version: Mapped[DocumentVersionRow] = relationship(back_populates="chunks")
 
 
+class IngestionJobRow(Base):
+    """One background ingestion job (GT-11).
+
+    Created synchronously by the upload endpoint for large documents, then
+    updated by the background worker. ``document_id`` carries no FK: the job
+    row must exist before the worker creates the document rows, and must
+    survive the worker deleting a partially ingested document on failure.
+    Documents with no job row are synchronous ingests, which are complete
+    by definition; documents with a ``processing`` or ``failed`` job row
+    must be hidden from the documents list and from retrieval.
+    """
+
+    __tablename__ = "ingestion_jobs"
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    document_id: Mapped[str] = mapped_column(String(128), unique=True, index=True)
+    version_id: Mapped[str] = mapped_column(String(128))
+    filename: Mapped[str | None] = mapped_column(String(500))
+    status: Mapped[str] = mapped_column(String(50))  # processing | succeeded | failed
+    chunks_done: Mapped[int] = mapped_column(Integer, default=0)
+    chunks_total: Mapped[int] = mapped_column(Integer)
+    error: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
+
+
 class ChunkEmbeddingRow(Base):
     __tablename__ = "chunk_embeddings"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)

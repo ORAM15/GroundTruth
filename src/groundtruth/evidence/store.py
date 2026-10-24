@@ -37,7 +37,25 @@ from groundtruth.evidence.db import (
     ChunkRow,
     DocumentRow,
     DocumentVersionRow,
+    IngestionJobRow,
 )
+
+
+def incomplete_document_ids(session) -> set[str]:
+    """Document ids whose ingestion has not completed (GT-11).
+
+    A document is incomplete when it has a job row in ``processing`` or
+    ``failed`` state. Documents with no job row are synchronous ingests,
+    complete by definition; ``succeeded`` jobs are complete. Callers use
+    this to hide partial documents from the list and from retrieval —
+    a half-ingested document must never be listed or answered from.
+    """
+    return {
+        row_id
+        for (row_id,) in session.query(IngestionJobRow.document_id)
+        .filter(IngestionJobRow.status.in_(["processing", "failed"]))
+        .all()
+    }
 
 logger = logging.getLogger(__name__)
 
@@ -76,17 +94,17 @@ def list_documents(session_factory) -> list[DocumentSummary]:
     or programmatic writes) report them as ``None``."""
     session = session_factory()
     try:
+        excluded = incomplete_document_ids(session)
         chunk_counts = dict(
             session.query(DocumentVersionRow.document_id, func.count(ChunkRow.id))
             .join(ChunkRow, ChunkRow.document_version_id == DocumentVersionRow.id)
             .group_by(DocumentVersionRow.document_id)
             .all()
         )
-        rows = (
-            session.query(DocumentRow)
-            .order_by(DocumentRow.created_at.desc(), DocumentRow.id)
-            .all()
-        )
+        rows_query = session.query(DocumentRow)
+        if excluded:
+            rows_query = rows_query.filter(~DocumentRow.id.in_(excluded))
+        rows = rows_query.order_by(DocumentRow.created_at.desc(), DocumentRow.id).all()
         return [
             DocumentSummary(
                 document_id=row.id,

@@ -21,6 +21,8 @@ of 50 lines produce exactly 250 chunks.
 
 from __future__ import annotations
 
+import time
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -28,7 +30,7 @@ from sqlalchemy.orm import sessionmaker
 from test_gt1_persistence import TWO_PAGE_PDF, FakeEmbeddingProvider, make_pdf_bytes, upload
 
 from groundtruth.api.app import app, get_embedding_provider, get_session_factory
-from groundtruth.evidence import store
+from groundtruth.evidence import jobs, store
 from groundtruth.evidence.db import (
     Base,
     ChunkEmbeddingRow,
@@ -37,6 +39,7 @@ from groundtruth.evidence.db import (
     DocumentVersionRow,
 )
 from groundtruth.evidence.embeddings import EmbeddingError
+from groundtruth.evidence.pacing import QuotaPacer
 
 BIG_PDF = make_pdf_bytes(
     [
@@ -79,12 +82,41 @@ class FailOnCallProvider(FakeEmbeddingProvider):
 
 
 def _wire(tmp_path, provider, db_name: str):
-    engine = create_engine(f"sqlite:///{tmp_path}/{db_name}")
+    # check_same_thread=False: GT-11 runs large uploads in a background
+    # worker thread, which must be able to use pooled SQLite connections.
+    engine = create_engine(
+        f"sqlite:///{tmp_path}/{db_name}", connect_args={"check_same_thread": False}
+    )
     Base.metadata.create_all(engine)
     factory = sessionmaker(bind=engine)
     app.dependency_overrides[get_session_factory] = lambda: factory
     app.dependency_overrides[get_embedding_provider] = lambda: provider
     return factory
+
+
+@pytest.fixture(autouse=True)
+def _unlimited_pacing(monkeypatch):
+    """GT-11's background worker paces at 100 items/minute by default;
+    these tests assert slicing behaviour, not the quota wait, so the
+    pacer is neutralised (it is unit-tested in test_gt11)."""
+    monkeypatch.setattr(
+        jobs,
+        "pacer_from_env",
+        lambda: QuotaPacer(max_items_per_window=10**9, window_seconds=60.0),
+    )
+
+
+def _wait_for_job(test_client, document_id: str, timeout: float = 20.0) -> dict:
+    """Poll the GT-11 status endpoint until the job reaches a terminal state."""
+    deadline = time.monotonic() + timeout
+    while True:
+        response = test_client.get(f"/api/v1/documents/{document_id}/ingestion")
+        assert response.status_code == 200, response.text
+        body = response.json()
+        if body["status"] in ("succeeded", "failed"):
+            return body
+        assert time.monotonic() < deadline, f"job stuck: {body}"
+        time.sleep(0.1)
 
 
 @pytest.fixture()
@@ -98,7 +130,9 @@ def client(tmp_path):
 
 @pytest.fixture()
 def failing_client(tmp_path):
-    engine = create_engine(f"sqlite:///{tmp_path}/gt10-fail.db")
+    engine = create_engine(
+        f"sqlite:///{tmp_path}/gt10-fail.db", connect_args={"check_same_thread": False}
+    )
     Base.metadata.create_all(engine)
     factory = sessionmaker(bind=engine)
 
@@ -136,25 +170,22 @@ def all_row_counts(factory):
 
 
 def test_multi_slice_upload_commits_every_chunk_and_embedding(client):
+    # GT-11 contract change: a 250-chunk upload is a large document, so
+    # the endpoint returns 202 + a job and ingests in the background.
+    # The slicing assertions below are unchanged — they now run after
+    # the job completes instead of inside the request.
     test_client, fake, factory = client
     response = upload(test_client, BIG_PDF, filename="big.pdf")
-    assert response.status_code == 200
+    assert response.status_code == 202
     body = response.json()
-    # Response payload shape is unchanged from the pre-slicing flow.
-    assert set(body) == {
-        "status",
-        "document_id",
-        "version_id",
-        "filename",
-        "pages",
-        "chunks",
-        "duplicate",
-    }
-    assert body["status"] == "stored"
-    assert body["duplicate"] is False
+    assert body["status"] == "processing"
+    assert set(body) == {"status", "document_id", "version_id", "filename", "pages", "chunks"}
     assert body["filename"] == "big.pdf"
     assert body["pages"] == 5
     assert body["chunks"] == 250
+    job = _wait_for_job(test_client, body["document_id"])
+    assert job["status"] == "succeeded"
+    assert job["chunks_done"] == 250
 
     # The provider saw one call per slice, each within the slice bound.
     assert store.INGEST_SLICE_SIZE == 100
@@ -185,11 +216,16 @@ def test_multi_slice_upload_commits_every_chunk_and_embedding(client):
 
 
 def test_failed_slice_leaves_no_partial_document(failing_client):
+    # GT-11 contract change: the 250-chunk upload returns 202 and the
+    # slice failure surfaces as a failed job, not a 502 — the store
+    # assertions below (no partial document) are unchanged.
     test_client, fake, factory = failing_client
     response = upload(test_client, BIG_PDF, filename="big.pdf")
-    # The original embedding error surfaces exactly as before: 502 + detail.
-    assert response.status_code == 502
-    assert "injected embedding failure" in response.json()["detail"]
+    assert response.status_code == 202
+    document_id = response.json()["document_id"]
+    job = _wait_for_job(test_client, document_id)
+    assert job["status"] == "failed"
+    assert "injected embedding failure" in (job["error"] or "")
     assert fake.calls == 2
     # The probe proves slice 1 had genuinely COMMITTED its 100 chunks
     # before slice 2 failed — so the empty store below is the cleanup's
@@ -211,7 +247,11 @@ def test_failed_slice_leaves_no_partial_document(failing_client):
 def test_duplicate_upload_makes_no_additional_embedding_calls(client):
     test_client, fake, factory = client
     first = upload(test_client, BIG_PDF, filename="big.pdf")
-    assert first.status_code == 200
+    # GT-11: the first upload is async (202); the duplicate assertion
+    # below runs after its job completes.
+    assert first.status_code == 202
+    job = _wait_for_job(test_client, first.json()["document_id"])
+    assert job["status"] == "succeeded"
     counts_after_first = all_row_counts(factory)
     calls_after_first = fake.calls
     batches_after_first = list(fake.batch_sizes)

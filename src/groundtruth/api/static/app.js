@@ -87,6 +87,60 @@ async function refreshDocuments() {
 
 /* ---------------- upload ---------------- */
 
+/* Poll interval for background ingestion jobs (GT-11). Polling also
+ * keeps a free-tier instance awake while a long job runs. */
+const INGESTION_POLL_MS = 3000;
+
+async function pollIngestion(documentId, uploadBody) {
+  const state = $("upload-state");
+  const result = $("upload-result");
+  let timer = null;
+  let inFlight = false;
+  let stopped = false;
+  const stop = () => {
+    if (timer) window.clearInterval(timer);
+    timer = null;
+    stopped = true;
+  };
+  const tick = async () => {
+    if (inFlight) return;
+    inFlight = true;
+    try {
+      const response = await fetch(
+        "/api/v1/documents/" + encodeURIComponent(documentId) + "/ingestion"
+      );
+      if (!response.ok) throw new Error(await readErrorDetail(response));
+      const job = await response.json();
+      if (job.status === "succeeded") {
+        stop();
+        state.textContent = "";
+        const lines = [
+          "Stored " + (uploadBody.filename || "document") +
+            ": " + uploadBody.pages + (uploadBody.pages === 1 ? " page" : " pages") +
+            ", " + uploadBody.chunks + (uploadBody.chunks === 1 ? " chunk" : " chunks") + ".",
+        ];
+        for (const line of lines) result.appendChild(makeEl("div", null, line));
+        result.hidden = false;
+        await refreshDocuments();
+      } else if (job.status === "failed") {
+        stop();
+        state.textContent = "Processing failed: " + (job.error || "unknown error");
+      } else {
+        state.textContent =
+          "Processing " + (uploadBody.filename || "document") + "… " +
+          job.chunks_done + " of " + job.chunks_total + " chunks.";
+      }
+    } catch (err) {
+      stop();
+      state.textContent = "Could not check processing status: " + err.message;
+    } finally {
+      inFlight = false;
+    }
+  };
+  await tick();
+  if (!stopped) timer = window.setInterval(tick, INGESTION_POLL_MS);
+}
+
 async function handleUpload(event) {
   event.preventDefault();
   const input = $("file-input");
@@ -107,6 +161,16 @@ async function handleUpload(event) {
     const response = await fetch("/api/v1/documents", { method: "POST", body: formData });
     if (!response.ok) throw new Error(await readErrorDetail(response));
     const body = await response.json();
+    if (response.status === 202 || body.status === "processing") {
+      // Large document (GT-11): ingestion continues in the background.
+      // The button is re-enabled by the finally block; polling owns
+      // the state line from here until the job succeeds or fails.
+      state.textContent =
+        "Processing " + (body.filename || "document") + "… " +
+        "this can take a few minutes for large documents.";
+      await pollIngestion(body.document_id, body);
+      return;
+    }
     state.textContent = "";
     const lines = [
       "Stored " + (body.filename || "document") +

@@ -30,6 +30,7 @@ from dataclasses import dataclass
 from groundtruth.domain.models import Chunk
 from groundtruth.evidence.db import ChunkEmbeddingRow, ChunkRow, DocumentRow, DocumentVersionRow
 from groundtruth.evidence.embeddings import EmbeddingProvider as BatchEmbeddingProvider
+from groundtruth.evidence.store import incomplete_document_ids
 from groundtruth.retrieval.dense import DenseRetriever
 from groundtruth.retrieval.hybrid import HybridRetriever
 from groundtruth.retrieval.lexical import LexicalRetriever
@@ -88,13 +89,23 @@ class QueryOutcome:
 
 def _load_corpus(session_factory):
     """Load all stored chunks as domain objects plus their embeddings and
-    per-document citation metadata (title / original filename)."""
+    per-document citation metadata (title / original filename).
+
+    Chunks belonging to documents whose ingestion has not completed
+    (GT-11 background jobs still ``processing`` or ``failed``) are
+    excluded: a half-ingested document must never be answered from, even
+    though its first slices are already committed.
+    """
     session = session_factory()
     try:
+        excluded = incomplete_document_ids(session)
         versions = {row.id: row for row in session.query(DocumentVersionRow).all()}
         documents = {row.id: row for row in session.query(DocumentRow).all()}
         chunks: list[Chunk] = []
         for row in session.query(ChunkRow).order_by(ChunkRow.ordinal).all():
+            version = versions.get(row.document_version_id)
+            if version is None or version.document_id in excluded:
+                continue
             chunks.append(
                 Chunk(
                     chunk_id=row.id,
@@ -110,9 +121,11 @@ def _load_corpus(session_factory):
                     representation_version=row.representation_version,
                 )
             )
+        kept_ids = {chunk.chunk_id for chunk in chunks}
         embeddings: dict[str, list[float]] = {}
         for row in session.query(ChunkEmbeddingRow).all():
-            embeddings[row.chunk_id] = list(row.vector)
+            if row.chunk_id in kept_ids:
+                embeddings[row.chunk_id] = list(row.vector)
 
         def citation(chunk: Chunk) -> tuple[str, str | None, str | None]:
             version = versions.get(chunk.document_version_id)

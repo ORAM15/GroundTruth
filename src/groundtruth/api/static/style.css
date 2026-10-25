@@ -340,6 +340,8 @@ button:disabled { opacity: 0.55; cursor: wait; }
 
 .citation-chips { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.65rem; }
 
+.coverage-strip { color: var(--muted); font-size: 0.85rem; margin: 0.6rem 0 0; }
+
 .chip {
   background: var(--accent-soft);
   color: #e8cf9a;

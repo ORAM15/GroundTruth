@@ -153,7 +153,17 @@ async function pollIngestion(documentId, uploadBody) {
         await refreshDocuments();
       } else if (job.status === "failed") {
         stop();
-        state.textContent = "Processing failed: " + (job.error || "unknown error");
+        /* GT-53: a job recovered after an interrupted run must not look
+         * like an endless processing indicator or a generic failure —
+         * the only remedy is a fresh upload, so say exactly that. The
+         * backend marks such jobs with the "Ingestion was interrupted"
+         * error prefix (see jobs.INTERRUPTED_ERROR_PREFIX). */
+        if ((job.error || "").includes("Ingestion was interrupted")) {
+          state.textContent =
+            "Ingestion was interrupted — please upload the document again to retry.";
+        } else {
+          state.textContent = "Processing failed: " + (job.error || "unknown error");
+        }
       } else {
         state.textContent =
           "Processing " + (uploadBody.filename || "document") + "… " +

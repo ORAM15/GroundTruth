@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import os
+from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from functools import lru_cache
 from pathlib import Path
@@ -32,7 +33,37 @@ from groundtruth.generation import (
 from groundtruth.ingestion.pdf import PdfLoader, StructureAwareChunker
 from groundtruth.retrieval import service as retrieval_service
 
-app = FastAPI(title="GroundTruth", version="0.1.0")
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    """Startup recovery for stale ingestion jobs (issue #53).
+
+    The ingestion worker is in-process, so a ``processing`` job cannot
+    survive a restart by definition — yet before this handler such a
+    row stayed ``processing`` forever, and a re-upload returned 202
+    with no worker behind it. Recovering at startup restores the
+    invariant every later request relies on: a ``processing`` job
+    either has a live worker in this process or does not exist.
+    Recovery is deliberately never fatal: if the store is unreachable
+    at boot, the app still starts and the next restart retries.
+    (``get_session_factory`` is defined below but resolved at call
+    time, when the module is fully loaded.)
+    """
+    try:
+        session_factory = get_session_factory()
+        if session_factory is not None:
+            recovered = jobs.recover_stale_processing_jobs(session_factory)
+            if recovered:
+                logging.getLogger(__name__).info(
+                    "Recovered %d stale ingestion job(s)", recovered
+                )
+    except Exception:
+        logging.getLogger(__name__).exception(
+            "Stale ingestion-job recovery failed at startup"
+        )
+    yield
+
+
+app = FastAPI(title="GroundTruth", version="0.1.0", lifespan=lifespan)
 
 logger = logging.getLogger(__name__)
 

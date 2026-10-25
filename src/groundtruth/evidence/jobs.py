@@ -14,6 +14,17 @@ On terminal failure the worker deletes the partial document (GT-10's
 ``delete_document``) and marks the job failed; the job row itself is
 kept, so a later re-upload of the same content can reset it instead of
 colliding on the unique ``document_id``.
+
+A ``processing`` job left behind by a dead process (issue #53: instance
+spin-down or restart mid-job) can never complete — the worker is
+in-process — so application startup recovers it (see
+``recover_stale_processing_jobs``): the job is marked failed and any
+partial document rows are removed, making the content re-uploadable.
+The partial-row cleanup is load-bearing, not cosmetic: without it a
+re-upload's first slice would collide with the leftover rows and
+``persist_document_sliced`` would mistake the partial document for a
+concurrent winner's complete one, marking the job succeeded with only
+some slices stored.
 """
 
 from __future__ import annotations
@@ -35,6 +46,13 @@ logger = logging.getLogger(__name__)
 
 MAX_EMBED_RETRIES = 5
 MAX_ERROR_CHARS = 1000
+
+# Stable prefix of the error text recovery writes on an interrupted job.
+# The UI keys its "ingestion interrupted — retry" message off this
+# prefix (no schema change: the jobs table has no status vocabulary
+# beyond processing | succeeded | failed, and the deployed table is
+# created by create_all, which cannot add a column).
+INTERRUPTED_ERROR_PREFIX = "Ingestion was interrupted"
 
 
 @dataclass(frozen=True)
@@ -144,6 +162,54 @@ def reset_ingestion_job(session_factory, document_id: str) -> None:
     update_ingestion_job(
         session_factory, document_id, status="processing", chunks_done=0, error=None
     )
+
+
+def recover_stale_processing_jobs(session_factory) -> int:
+    """Recover ``processing`` jobs left behind by a dead process (#53).
+
+    The worker is in-process, so a ``processing`` job cannot survive a
+    restart by definition: any such row found at startup belongs to a
+    worker that will never report again. Each is marked ``failed`` with
+    an interruption error (so a re-upload takes the existing failed-job
+    path and schedules a fresh worker) and its partial document rows
+    are removed first — without that cleanup a re-upload's first slice
+    would collide with the leftovers and be mistaken for a concurrent
+    winner's complete document (see the module docstring). Succeeded
+    and failed jobs are untouched. Returns how many jobs recovered.
+    Idempotent: a second run finds nothing to do.
+    """
+    session = session_factory()
+    try:
+        stale_ids = [
+            row_id
+            for (row_id,) in session.query(IngestionJobRow.document_id)
+            .filter(IngestionJobRow.status == "processing")
+            .all()
+        ]
+    finally:
+        session.close()
+    for document_id in stale_ids:
+        try:
+            store.delete_document(session_factory, document_id)
+        except Exception:
+            # The DB is unusable if even the cleanup fails; still mark
+            # the job failed rather than leave it stuck processing —
+            # the next restart retries the cleanup.
+            logger.exception(
+                "Failed to clean up partially ingested document %s during "
+                "stale-job recovery",
+                document_id,
+            )
+        update_ingestion_job(
+            session_factory,
+            document_id,
+            status="failed",
+            error=(
+                f"{INTERRUPTED_ERROR_PREFIX} (the service restarted before "
+                "the job finished); upload the document again to retry."
+            ),
+        )
+    return len(stale_ids)
 
 
 def embed_with_retry(

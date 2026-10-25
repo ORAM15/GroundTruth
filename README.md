@@ -2,12 +2,14 @@
 
 GroundTruth is a trustworthy evidence-grounded document QA system. It allows users to query document collections and receive answers strongly grounded in retrieved evidence with clear citations, while abstaining from answering unsupported queries.
 
-**Live demo:** _URL to be added here once the owner completes the deploy steps below._
+**Live demo:** https://groundtruth-nf8i.onrender.com
 
 ## Project State
 
-**Current Phase:** Phase 0 — Project Foundation
-**Current Status:** Establishing repository baseline and execution substrate.
+**Current Phase:** v1 — deployed (GT-1 through GT-5, plus GT-8–GT-11 production
+fixes). See `docs/portfolio/GT7_PORTFOLIO_PACK.md` for the demo script,
+interview Q&A, measured results, and the production-debugging story.
+**Current Status:** Live on Render (free tier) + Neon Postgres + Gemini free tier.
 
 The project is governed strictly by the following baseline documents:
 - `PRODUCT.md`: The definition of the product, user requirements, and scope.
@@ -19,9 +21,97 @@ The project is governed strictly by the following baseline documents:
 - `DEVELOPMENT.md`: Engineering workflow, autonomous agent boundaries, and the checkpoint system.
 Phase 0 implementation establishes the execution substrate and repository baseline. The repository intentionally avoids claiming measured retrieval, grounding, citation, security, latency, or quality results until tests/benchmarks have actually produced them.
 
-## Current vertical slice
+## Architecture
 
-Repository baseline and documentation established.
+One modular FastAPI application, one Postgres database, one-page vanilla UI.
+The request path is deliberately linear so every answer keeps an explainable
+lineage back to source evidence:
+
+```
+PDF upload
+  → extract text per page (pypdf), keep page lineage on every chunk
+  → chunk (line-based, split on long lines) with content-hash idempotency
+  → embed (Gemini, batched at ≤100 inputs per request)
+  → Postgres + pgvector (documents → versions → chunks → embeddings)
+  → question
+  → hybrid retrieval: dense cosine + term-count lexical, fused with
+    reciprocal rank fusion (k=60)
+  → dense-cosine abstention gate: the best dense score must clear 0.35
+    (env GT_MIN_EVIDENCE_SCORE) before any evidence is returned — lexical
+    matches alone can never override a failing dense score
+  → grounded generation: evidence is passed as labelled DATA blocks, never
+    as instructions
+  → pure citation verification: every citation in the draft answer must
+    resolve to a chunk in the returned evidence, or the answer is withheld
+    and the user gets an honest abstention instead
+  → one-page UI (vanilla JS, textContent-only rendering)
+```
+
+Large documents take a different ingestion path: uploads over 100 chunks
+return `202` plus an ingestion job, and a background worker embeds and saves
+in slices of ≤100 chunks under a quota pacer (≤100 embedded items per 60s,
+matching the Gemini free-tier limit). Processing and failed documents are
+excluded from the document list and from retrieval. See GT-11 (issue #49).
+
+## Design decisions and trade-offs
+
+- **Chunking rationale.** Chunks are small, page-anchored text units produced
+  from PDF text lines (long lines split), not fixed-size windows. Small
+  chunks keep citations precise — a citation points at one claim-sized unit
+  on a known page — at the cost of more embedding calls per document, which
+  is exactly what the free-tier quota then constrains. The trade-off is
+  deliberate: citation precision over ingestion throughput.
+- **Hybrid retrieval, not vector-only.** Dense retrieval catches paraphrase;
+  lexical retrieval catches exact terms, codes, and names. RRF fusion (k=60)
+  combines the two rankings without a tuned weighting scheme. Cost: two
+  retrieval passes and a fusion step per query; benefit: neither signal
+  alone decides what counts as evidence.
+- **The 0.35 abstention threshold.** The gate exists because a question can
+  share words with a chunk while being about something else entirely, and
+  answering from it would be fabrication with citations attached. 0.35 was
+  chosen from a threshold sweep on the GT-5 golden dataset
+  (`docs/evaluation/GT5_EVALUATION_REPORT.md`): it is the lowest threshold
+  at which abstention accuracy on unanswerable cases reached 100% while
+  answered-rate on answerable cases stayed at 100%. Honest caveat: that
+  sweep ran against deterministic lexical evaluation doubles, not Gemini
+  embeddings, so 0.35 is a validated mechanism with an uncalibrated
+  production value — live re-measurement with the `--live` harness is still
+  outstanding before the default is treated as production-calibrated.
+- **Pure citation verification, not model self-checking.** After generation,
+  code — not the model — checks that every citation resolves to retrieved
+  evidence. Unverified answer text is never returned, and abstention paths
+  never call generation at all. This is what makes the abstention guarantee
+  structural rather than a prompt instruction the model might ignore.
+- **Prompt-injection defence is a boundary, not a filter.** Retrieved
+  documents are untrusted data: the prompt marks them as DATA blocks and
+  explicitly orders the model to ignore instructions inside them. No
+  claim is made that this is unbreakable — GT-5's adversarial cases are
+  the honest measure of it, and they are the known weak spot (see below).
+- **Single modular app, no queue service.** Async ingestion runs as
+  FastAPI background tasks in the same process, not a separate worker or
+  broker. That keeps the free-tier footprint at one service, at the cost
+  that a `processing` job does not survive an instance restart — a known
+  follow-up, not a hidden one (see the portfolio pack).
+- **No login on the demo, by design for v1.** Anyone with the demo link can
+  see the documents list. Personal files should not be uploaded to it.
+
+## Measured results (GT-5, local deterministic doubles)
+
+From `docs/evaluation/GT5_EVALUATION_REPORT.md` (26 golden cases, 4 small
+documents, seeded and queried through the real API paths; embedding and
+generation doubles, not Gemini):
+
+| Metric | Value |
+|---|---|
+| Answered-rate (answerable) | 100% |
+| Retrieval hit@10 | 100% |
+| Abstention accuracy (unanswerable) | 100% |
+| Adversarial safety | **66.7% (4/6) — the known weak spot** |
+
+These numbers validate the pipeline mechanism (gating, ranking, citation
+enforcement, scoring), not production behaviour with Gemini. They must not
+be quoted as production accuracy. The full report, including its
+limitations, is in `docs/evaluation/GT5_EVALUATION_REPORT.md`.
 
 ## Architecture boundary
 
@@ -76,4 +166,7 @@ The PostgreSQL/pgvector adapters are configuration-driven; no credentials are co
 
 ## Validation status
 
-GitHub Actions is configured to run the Python test suite on Python 3.12. This project does not claim CI success until an actual workflow run reports it. Retrieval quality metrics are implemented as evaluation primitives, but no benchmark result is claimed yet.
+GitHub Actions runs the Python test suite on Python 3.12. Measured results
+live in `docs/evaluation/GT5_EVALUATION_REPORT.md` (local doubles) and in
+the portfolio pack's production-debugging story (live deployment). No
+unmeasured quality, latency, or scale claim is made anywhere in this repo.

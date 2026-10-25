@@ -72,17 +72,37 @@ function renderDocuments(documents) {
   }
 }
 
+const sleep = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
+/* Bounded retries for the documents-list fetch (GT-44): a free-tier
+ * instance can drop a single request while waking, and a one-shot
+ * failure used to leave the panel showing "No documents stored yet"
+ * when the list had simply never loaded. */
+const DOCUMENTS_FETCH_ATTEMPTS = 3;
+const DOCUMENTS_FETCH_RETRY_MS = 1000;
+
 async function refreshDocuments() {
   const errorLine = $("documents-error");
+  const empty = $("documents-empty");
   errorLine.hidden = true;
-  try {
-    const response = await fetch("/api/v1/documents");
-    if (!response.ok) throw new Error(await readErrorDetail(response));
-    renderDocuments(await response.json());
-  } catch (err) {
-    errorLine.textContent = "Could not load the document list: " + err.message;
-    errorLine.hidden = false;
+  let lastError = null;
+  for (let attempt = 1; attempt <= DOCUMENTS_FETCH_ATTEMPTS; attempt++) {
+    try {
+      const response = await fetch("/api/v1/documents");
+      if (!response.ok) throw new Error(await readErrorDetail(response));
+      renderDocuments(await response.json());
+      return;
+    } catch (err) {
+      lastError = err;
+      if (attempt < DOCUMENTS_FETCH_ATTEMPTS) await sleep(DOCUMENTS_FETCH_RETRY_MS);
+    }
   }
+  /* A failed load is not an empty store: hide the empty-state claim so
+   * the panel never reports "no documents" when it simply could not
+   * load. A later successful refresh restores the correct state. */
+  empty.hidden = true;
+  errorLine.textContent = "Could not load the document list: " + lastError.message;
+  errorLine.hidden = false;
 }
 
 /* ---------------- upload ---------------- */
@@ -91,12 +111,20 @@ async function refreshDocuments() {
  * keeps a free-tier instance awake while a long job runs. */
 const INGESTION_POLL_MS = 3000;
 
+/* A single failed status check (e.g. the free-tier instance hiccuping
+ * mid-job) used to stop polling forever (GT-44), orphaning the job
+ * indicator and the list refresh that only runs on success. Tolerate
+ * a few consecutive failures instead; only a sustained outage stops
+ * the poll. */
+const INGESTION_STATUS_MAX_FAILURES = 5;
+
 async function pollIngestion(documentId, uploadBody) {
   const state = $("upload-state");
   const result = $("upload-result");
   let timer = null;
   let inFlight = false;
   let stopped = false;
+  let consecutiveFailures = 0;
   const stop = () => {
     if (timer) window.clearInterval(timer);
     timer = null;
@@ -111,6 +139,7 @@ async function pollIngestion(documentId, uploadBody) {
       );
       if (!response.ok) throw new Error(await readErrorDetail(response));
       const job = await response.json();
+      consecutiveFailures = 0;
       if (job.status === "succeeded") {
         stop();
         state.textContent = "";
@@ -131,8 +160,13 @@ async function pollIngestion(documentId, uploadBody) {
           job.chunks_done + " of " + job.chunks_total + " chunks.";
       }
     } catch (err) {
-      stop();
-      state.textContent = "Could not check processing status: " + err.message;
+      consecutiveFailures += 1;
+      if (consecutiveFailures >= INGESTION_STATUS_MAX_FAILURES) {
+        stop();
+        state.textContent = "Could not check processing status: " + err.message;
+      }
+      /* Otherwise keep polling: the next tick retries the status
+       * check, so a transient failure cannot orphan the job. */
     } finally {
       inFlight = false;
     }

@@ -127,19 +127,26 @@ def test_index_serves_the_one_page_ui():
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/html")
     html = response.text
+    # GT-57 replaced the single-answer regions (answer-area, abstain-area,
+    # evidence-list) with per-turn regions inside the conversation thread;
+    # the list below tracks the redesigned structure instead.
     for element_id in (
         "status-dot",
+        "library-count",
         "upload-form",
         "file-input",
+        "dropzone",
+        "upload-activity",
+        "upload-progress",
         "upload-result",
         "documents-list",
         "documents-empty",
         "ask-form",
         "question-input",
-        "answer-area",
-        "abstain-area",
+        "conversation-thread",
+        "conversation-empty",
+        "clear-conversation",
         "error-banner",
-        "evidence-list",
     ):
         assert f'id="{element_id}"' in html, element_id
     assert "/static/style.css" in html

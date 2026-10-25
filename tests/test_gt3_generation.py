@@ -331,7 +331,11 @@ def test_answer_citing_hallucinated_chunk_abstains(client):
     body = response.json()
     assert body["decision"] == "ABSTAIN"
     assert body["answer"] is None
-    assert "deadbeef:v1:chunk:99" in body["message"]
+    # GT-51: the abstention is still correct, but the user-facing
+    # message must no longer leak the internal chunk id that failed
+    # verification — that detail belongs in the server log only.
+    assert "deadbeef:v1:chunk:99" not in body["message"]
+    assert "could not be verified" in body["message"]
 
 
 def test_query_without_generation_provider_is_503(tmp_path):

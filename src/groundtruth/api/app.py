@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 from datetime import UTC, datetime
 from functools import lru_cache
@@ -32,6 +33,8 @@ from groundtruth.ingestion.pdf import PdfLoader, StructureAwareChunker
 from groundtruth.retrieval import service as retrieval_service
 
 app = FastAPI(title="GroundTruth", version="0.1.0")
+
+logger = logging.getLogger(__name__)
 
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024  # 25 MB upload limit for the MVP.
 
@@ -437,11 +440,16 @@ def query(
     # never returned as an answer; the query abstains instead.
     verification = verify_citations(answer, {item.chunk_id for item in evidence})
     if not verification.ok:
+        # GT-51: the detailed reason names internal chunk ids — it is
+        # developer detail, so it goes to the server log only. The
+        # user-facing message must be a clean sentence with no ids.
+        logger.warning("Citation verification failed: %s", verification.reason)
         return QueryResponse(
             decision="ABSTAIN",
             message=(
-                f"Generated answer failed citation verification ({verification.reason}); "
-                "abstaining rather than returning an unverifiable answer."
+                "The draft answer could not be verified against the "
+                "retrieved evidence (citation verification failed), so it "
+                "was withheld rather than shown unverified."
             ),
         )
     by_chunk_id = {item.chunk_id: item for item in evidence}

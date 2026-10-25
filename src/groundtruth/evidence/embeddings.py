@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import os
 from collections.abc import Sequence
+from datetime import UTC
 from typing import Protocol, runtime_checkable
 
 import httpx
@@ -31,7 +32,25 @@ MAX_ERROR_MESSAGE_CHARS = 500
 
 class EmbeddingError(RuntimeError):
     """Raised when embeddings cannot be produced (missing key, API failure,
-    or a malformed response)."""
+    or a malformed response).
+
+    ``status_code`` and ``retry_after`` (seconds) are populated for HTTP
+    error responses when known, so callers can distinguish a rate limit
+    (429, retryable after a wait) from a rejection (4xx, not retryable)
+    without parsing the message text. Both default to ``None`` for
+    transport errors and malformed responses.
+    """
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        status_code: int | None = None,
+        retry_after: float | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.status_code = status_code
+        self.retry_after = retry_after
 
 
 def _api_error_detail(response: httpx.Response) -> str:
@@ -49,6 +68,35 @@ def _api_error_detail(response: httpx.Response) -> str:
     if not detail:
         detail = response.reason_phrase or f"HTTP {response.status_code}"
     return detail[:MAX_ERROR_MESSAGE_CHARS]
+
+
+def _parse_retry_after(response: httpx.Response) -> float | None:
+    """Seconds to wait from a ``Retry-After`` header, or ``None``.
+
+    Accepts a plain second count; an HTTP-date is converted to the delay
+    until that time (clamped at zero). Anything unparseable yields ``None``
+    so callers fall back to their own wait.
+    """
+    raw = response.headers.get("retry-after")
+    if raw is None:
+        return None
+    try:
+        return max(0.0, float(raw))
+    except ValueError:
+        pass
+    try:
+        from email.utils import parsedate_to_datetime
+
+        target = parsedate_to_datetime(raw)
+    except (TypeError, ValueError):
+        return None
+    if target is None:
+        return None
+    from datetime import datetime
+
+    if target.tzinfo is None:
+        target = target.replace(tzinfo=UTC)
+    return max(0.0, (target - datetime.now(UTC)).total_seconds())
 
 
 @runtime_checkable
@@ -125,7 +173,9 @@ class GeminiEmbeddingProvider:
         if response.is_error:
             raise EmbeddingError(
                 f"Gemini embedding request failed with HTTP {response.status_code}: "
-                f"{_api_error_detail(response)}"
+                f"{_api_error_detail(response)}",
+                status_code=response.status_code,
+                retry_after=_parse_retry_after(response),
             )
         try:
             payload = response.json()

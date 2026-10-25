@@ -6,13 +6,13 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Annotated, Any
 
-from fastapi import Depends, FastAPI, HTTPException, UploadFile
-from fastapi.responses import FileResponse
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, UploadFile
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from groundtruth.domain.models import Document
-from groundtruth.evidence import store
+from groundtruth.evidence import jobs, store
 from groundtruth.evidence.db import create_session_factory
 from groundtruth.evidence.embeddings import (
     PROVIDER_NAME,
@@ -73,6 +73,28 @@ class DocumentListItem(BaseModel):
     pages: int | None = None
     chunk_count: int
     created_at: datetime | None = None
+
+
+class IngestionJobResponse(BaseModel):
+    document_id: str
+    version_id: str
+    filename: str | None = None
+    status: str
+    chunks_done: int
+    chunks_total: int
+    error: str | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+def schedule_ingestion(background_tasks: BackgroundTasks, fn, *args, **kwargs) -> None:
+    """Schedule a background task, indirection point for tests.
+
+    Production delegates to FastAPI's BackgroundTasks; tests override
+    this function to capture the scheduled callable without running it,
+    so the ``processing`` state is observable deterministically.
+    """
+    background_tasks.add_task(fn, *args, **kwargs)
 
 
 @lru_cache(maxsize=4)
@@ -158,6 +180,7 @@ def list_documents(session_factory: SessionFactoryDep) -> list[DocumentListItem]
 @app.post("/api/v1/documents")
 async def ingest_document(
     file: UploadFile,
+    background_tasks: BackgroundTasks,
     session_factory: SessionFactoryDep,
     embedding_provider: EmbeddingProviderDep,
 ):
@@ -204,43 +227,140 @@ async def ingest_document(
         metadata={"filename": filename, "pages": parsed.page_count},
         versions=(version,),
     )
-    already = store.find_stored_version(session_factory, parsed.content_hash)
-    if already is not None:
+    # A job row, when one exists, is the authority on this content's
+    # state — it is checked BEFORE the version rows, because a
+    # partially ingested document already has version rows committed
+    # (slice 0) and must not be reported as a stored duplicate.
+    job = jobs.get_ingestion_job(session_factory, document_id)
+    if job is not None and job.status == "processing":
+        return JSONResponse(
+            status_code=202,
+            content={
+                "status": "processing",
+                "document_id": document_id,
+                "version_id": version_id,
+                "filename": filename,
+                "pages": parsed.page_count,
+                "chunks": len(version.chunks),
+            },
+        )
+    # A failed job's partial document was deleted by its worker, so the
+    # content is ingestible again — but the duplicate check below must
+    # be skipped for it (there are no rows to find, and the job row
+    # itself is the record of this content).
+    skip_duplicate_check = job is not None and job.status == "failed"
+    if skip_duplicate_check:
+        jobs.reset_ingestion_job(session_factory, document_id)
+        job = None
+    if not skip_duplicate_check:
+        already = store.find_stored_version(session_factory, parsed.content_hash)
+        if already is not None:
+            return {
+                "status": "stored",
+                "document_id": already.document_id,
+                "version_id": already.version_id,
+                "filename": filename,
+                "pages": parsed.page_count,
+                "chunks": already.chunk_count,
+                "duplicate": True,
+            }
+    # Small documents (one slice) stay synchronous, exactly as before:
+    # same endpoint behaviour, same 200 payload. Large documents go
+    # async (GT-11): the free-tier quota (~100 embedded items/minute)
+    # makes their embedding take minutes, which no synchronous request
+    # survives on Render's free edge — so the endpoint records a job,
+    # returns 202, and the worker paces the slices in the background.
+    model_provider = getattr(embedding_provider, "provider_name", PROVIDER_NAME)
+    model_name = embedding_provider.model_name
+    if len(version.chunks) <= store.INGEST_SLICE_SIZE:
+        try:
+            stored = store.persist_document_sliced(
+                session_factory,
+                document,
+                version,
+                embed_slice=embedding_provider.embed,
+                model_provider=model_provider,
+                model_name=model_name,
+            )
+        except EmbeddingError as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+        # Defensive, and a no-op when no job row exists: a failed job
+        # was reset above and the content fit in one slice after all,
+        # so the document is complete and the job must not stay
+        # "processing" and hide it.
+        jobs.update_ingestion_job(
+            session_factory,
+            document_id,
+            status="succeeded",
+            chunks_done=stored.chunk_count,
+        )
         return {
             "status": "stored",
-            "document_id": already.document_id,
-            "version_id": already.version_id,
+            "document_id": stored.document_id,
+            "version_id": stored.version_id,
             "filename": filename,
             "pages": parsed.page_count,
-            "chunks": already.chunk_count,
-            "duplicate": True,
+            "chunks": stored.chunk_count,
+            "duplicate": stored.duplicate,
         }
-    # Sliced ingestion (GT-10): embed + commit at most
-    # store.INGEST_SLICE_SIZE chunks per transaction, so one request never
-    # does unbounded work regardless of document size. If a slice fails,
-    # the store deletes the partial document before the error propagates,
-    # so an EmbeddingError here still means "nothing was stored" — exactly
-    # what the old embed-everything-then-persist flow guaranteed.
-    try:
-        stored = store.persist_document_sliced(
-            session_factory,
-            document,
-            version,
-            embed_slice=embedding_provider.embed,
-            model_provider=getattr(embedding_provider, "provider_name", PROVIDER_NAME),
-            model_name=embedding_provider.model_name,
+    jobs.create_ingestion_job(
+        session_factory,
+        document_id=document_id,
+        version_id=version_id,
+        filename=filename,
+        chunks_total=len(version.chunks),
+    )
+    schedule_ingestion(
+        background_tasks,
+        jobs.run_ingestion_job,
+        session_factory,
+        embedding_provider,
+        document,
+        version,
+        model_provider=model_provider,
+        model_name=model_name,
+    )
+    return JSONResponse(
+        status_code=202,
+        content={
+            "status": "processing",
+            "document_id": document_id,
+            "version_id": version_id,
+            "filename": filename,
+            "pages": parsed.page_count,
+            "chunks": len(version.chunks),
+        },
+    )
+
+
+@app.get(
+    "/api/v1/documents/{document_id}/ingestion",
+    response_model=IngestionJobResponse,
+)
+def ingestion_status(document_id: str, session_factory: SessionFactoryDep):
+    """Report a background ingestion job, or 404 when the document has
+    no job row (synchronous ingests never create one)."""
+    if session_factory is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Document store is not configured: DATABASE_URL is not set.",
         )
-    except EmbeddingError as exc:
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
-    return {
-        "status": "stored",
-        "document_id": stored.document_id,
-        "version_id": stored.version_id,
-        "filename": filename,
-        "pages": parsed.page_count,
-        "chunks": stored.chunk_count,
-        "duplicate": stored.duplicate,
-    }
+    job = jobs.get_ingestion_job(session_factory, document_id)
+    if job is None:
+        raise HTTPException(
+            status_code=404, detail="No ingestion job for this document."
+        )
+    return IngestionJobResponse(
+        document_id=job.document_id,
+        version_id=job.version_id,
+        filename=job.filename,
+        status=job.status,
+        chunks_done=job.chunks_done,
+        chunks_total=job.chunks_total,
+        error=job.error,
+        created_at=job.created_at,
+        updated_at=job.updated_at,
+    )
 
 
 SNIPPET_CHARS = 300

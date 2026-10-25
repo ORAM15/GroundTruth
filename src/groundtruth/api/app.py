@@ -80,6 +80,10 @@ STATIC_DIR = Path(__file__).parent / "static"
 class QueryRequest(BaseModel):
     question: str = Field(min_length=1, max_length=20_000)
     top_k: int = Field(default=10, ge=1, le=100)
+    # Issue #65: optional scope — when set, retrieval considers ONLY
+    # this document's chunks. Unset means library-wide, exactly as
+    # before. An unknown id is rejected (404) before any other path.
+    document_id: str | None = None
 
 
 class EvidenceItem(BaseModel):
@@ -428,14 +432,32 @@ def query(
             decision="ABSTAIN",
             message="No authorized evidence store is configured; GroundTruth will not fabricate an answer.",
         )
+    # Issue #65: an unknown scope fails loudly before any other path
+    # runs — including guidance — so no path can silently answer from
+    # a document the user did not scope to.
+    if request.document_id is not None and not store.document_exists(
+        session_factory, request.document_id
+    ):
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                f"Unknown document id: {request.document_id}; no scoped "
+                "search was performed."
+            ),
+        )
     # GT-61 objective 4: a topic-less question has nothing to ground an
     # answer in, so it gets guidance instead of a bare decline — but
     # only when something is actually stored (an empty library still
     # takes the normal path and its honest empty-store abstention).
     # Guidance needs no embedding or generation provider, so it is
-    # answered before either is consulted.
+    # answered before either is consulted. A scoped question gets
+    # guidance about the scoped document only; a scoped document still
+    # processing is not listed, so it falls through to the normal path
+    # and its scoped "still being ingested" abstention.
     if is_topicless_question(request.question):
         stored = store.list_documents(session_factory)
+        if request.document_id is not None:
+            stored = [doc for doc in stored if doc.document_id == request.document_id]
         if stored:
             titles = [doc.title for doc in stored]
             return QueryResponse(
@@ -454,7 +476,10 @@ def query(
             embedding_provider,
             request.question,
             top_k=request.top_k,
+            document_id=request.document_id,
         )
+    except retrieval_service.UnknownDocumentError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
     except EmbeddingError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
     # The generation provider is only consulted past this gate: every

@@ -59,6 +59,38 @@ async function refreshStatus() {
 
 /* ---------------- documents ---------------- */
 
+/* Issue #65: document scope. Clicking a library document scopes
+ * subsequent questions to it (the API then retrieves ONLY that
+ * document's chunks); clearing restores library-wide search. The scope
+ * bar above the composer always names the scoped document, and the
+ * scoped name reaches the DOM only via textContent. */
+let scopedDocument = null;
+
+function renderScopeBar() {
+  const bar = $("query-scope");
+  const text = $("query-scope-text");
+  if (scopedDocument) {
+    bar.hidden = false;
+    text.textContent = "Searching only: " + scopedDocument.name;
+  } else {
+    bar.hidden = true;
+    text.textContent = "";
+  }
+}
+
+function setScope(doc) {
+  scopedDocument = {
+    document_id: doc.document_id,
+    name: doc.filename || doc.title || doc.document_id,
+  };
+  renderScopeBar();
+}
+
+function clearScope() {
+  scopedDocument = null;
+  renderScopeBar();
+}
+
 function renderDocuments(documents) {
   const list = $("documents-list");
   const empty = $("documents-empty");
@@ -82,6 +114,9 @@ function renderDocuments(documents) {
      * a stored document. Live job state shows in the upload activity
      * card, never as a guessed badge on a library row. */
     item.appendChild(makeEl("span", "doc-status", "Stored"));
+    /* Issue #65: clicking a library document scopes questions to it. */
+    item.title = "Click to scope questions to this document";
+    item.addEventListener("click", () => setScope(doc));
     list.appendChild(item);
   }
 }
@@ -430,10 +465,14 @@ async function handleAsk(event) {
   input.value = "";
   button.disabled = true;
   try {
+    /* Issue #65: a set scope travels with the question; clearing the
+     * scope restores library-wide search (no document_id sent). */
+    const queryBody = { question: question, top_k: 10 };
+    if (scopedDocument) queryBody.document_id = scopedDocument.document_id;
     const response = await fetch("/api/v1/query", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ question: question, top_k: 10 }),
+      body: JSON.stringify(queryBody),
     });
     if (!response.ok) throw new Error(await readErrorDetail(response));
     const payload = await response.json();
@@ -528,6 +567,7 @@ document.addEventListener("DOMContentLoaded", () => {
     clearChildren($("conversation-thread"));
     $("conversation-empty").hidden = false;
   });
+  $("clear-scope").addEventListener("click", clearScope);
   const dropzone = $("dropzone");
   dropzone.addEventListener("dragover", (event) => {
     event.preventDefault();

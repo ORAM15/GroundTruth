@@ -66,7 +66,7 @@
       <h2 id="ask-heading">Ask your documents</h2>
       <button type="button" id="clear-conversation" class="text-button">Clear conversation</button>
     </div>
-    <p class="panel-note">Questions search every stored document. Answers name the document and page each claim comes from.</p>
+    <p class="panel-note">Questions search every stored document. Answers name the document and page each claim comes from. Click a document in the library to scope questions to it.</p>
     <div id="conversation-empty" class="conversation-empty">
       <p><strong>How it works</strong></p>
       <ol>
@@ -77,6 +77,10 @@
       <p class="panel-note">Tip: specific questions work best. “What does the report say about X?” beats “tell me everything”.</p>
     </div>
     <div id="conversation-thread" class="conversation-thread"></div>
+    <div id="query-scope" class="query-scope" hidden>
+      <span id="query-scope-text"></span>
+      <button type="button" id="clear-scope" class="text-button">Clear scope</button>
+    </div>
     <form id="ask-form" class="composer">
       <label class="visually-hidden" for="question-input">Question</label>
       <textarea id="question-input" rows="2" placeholder="What do the documents say about…?" required></textarea>

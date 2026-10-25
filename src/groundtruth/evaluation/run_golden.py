@@ -255,7 +255,7 @@ class EvaluationRun:
     def retrieval_layer_metrics(self) -> dict:
         """Retrieval-level metrics via the existing evaluate_retriever,
         over the same seeded corpus and resolved gold ids."""
-        chunks, embeddings, _citation = _load_corpus(self.factory)
+        chunks, embeddings, _citation, _documents, _excluded = _load_corpus(self.factory)
         retriever = HybridRetriever(
             lexical=LexicalRetriever(chunks),
             dense=DenseRetriever(

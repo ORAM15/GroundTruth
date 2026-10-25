@@ -19,6 +19,15 @@ Abstention contract (the trust core of GroundTruth):
   separates topical matches from unrelated text; it is a starting value,
   not a measured one — GT-5 will calibrate it against the golden dataset
   and this default will be revisited with that data.
+
+Document scoping (issue #65): a query may name one document, and then
+*only* that document's chunks form the corpus — the lexical retriever,
+the dense retriever (and therefore the dense gate's best score), and
+the RRF fusion all see the scoped corpus and nothing else. Unscoped
+queries behave exactly as before. A scope naming no stored document
+fails loudly (``UnknownDocumentError``) — it never silently falls back
+to library-wide search, because a silent fallback would answer from a
+document the user did not ask about.
 """
 
 from __future__ import annotations
@@ -38,6 +47,15 @@ from groundtruth.retrieval.models import RetrievalResult
 
 DEFAULT_MIN_EVIDENCE_SCORE = 0.35
 MIN_EVIDENCE_SCORE_ENV = "GT_MIN_EVIDENCE_SCORE"
+
+
+class UnknownDocumentError(ValueError):
+    """A query scoped to a document id with no stored document row.
+
+    Raised (and mapped to HTTP 404 by the API) rather than falling back
+    to unscoped search: answering from another document when the user
+    scoped to one would be the exact failure issue #65 fixes.
+    """
 
 
 def min_evidence_score() -> float:
@@ -87,14 +105,19 @@ class QueryOutcome:
     best_dense_score: float | None
 
 
-def _load_corpus(session_factory):
-    """Load all stored chunks as domain objects plus their embeddings and
+def _load_corpus(session_factory, document_id=None):
+    """Load stored chunks as domain objects plus their embeddings and
     per-document citation metadata (title / original filename).
 
     Chunks belonging to documents whose ingestion has not completed
     (GT-11 background jobs still ``processing`` or ``failed``) are
     excluded: a half-ingested document must never be answered from, even
     though its first slices are already committed.
+
+    When ``document_id`` is given, only that document's chunks are
+    loaded (issue #65 scoping); the returned ``documents`` map still
+    covers every stored document so callers can tell "unknown document"
+    apart from "known document with no searchable chunks".
     """
     session = session_factory()
     try:
@@ -105,6 +128,8 @@ def _load_corpus(session_factory):
         for row in session.query(ChunkRow).order_by(ChunkRow.ordinal).all():
             version = versions.get(row.document_version_id)
             if version is None or version.document_id in excluded:
+                continue
+            if document_id is not None and version.document_id != document_id:
                 continue
             chunks.append(
                 Chunk(
@@ -129,14 +154,14 @@ def _load_corpus(session_factory):
 
         def citation(chunk: Chunk) -> tuple[str, str | None, str | None]:
             version = versions.get(chunk.document_version_id)
-            document_id = version.document_id if version else ""
-            document = documents.get(document_id)
+            doc_id = version.document_id if version else ""
+            document = documents.get(doc_id)
             if document is None:
-                return document_id, None, None
+                return doc_id, None, None
             filename = (document.metadata_json or {}).get("filename")
-            return document_id, document.title, filename
+            return doc_id, document.title, filename
 
-        return chunks, embeddings, citation
+        return chunks, embeddings, citation, documents, excluded
     finally:
         session.close()
 
@@ -148,10 +173,42 @@ def search(
     *,
     top_k: int = 10,
     threshold: float | None = None,
+    document_id: str | None = None,
 ) -> QueryOutcome:
     """Run hybrid retrieval for ``question`` over the evidence store and
-    apply the abstention gate described in the module docstring."""
-    chunks, embeddings, citation = _load_corpus(session_factory)
+    apply the abstention gate described in the module docstring.
+
+    When ``document_id`` is given, only that document's chunks form the
+    corpus (issue #65); an unknown id raises ``UnknownDocumentError``
+    and a known-but-unsearchable document abstains with a scoped reason
+    — neither case ever falls back to library-wide search.
+    """
+    chunks, embeddings, citation, documents, excluded = _load_corpus(
+        session_factory, document_id
+    )
+    if document_id is not None:
+        if document_id not in documents:
+            raise UnknownDocumentError(
+                f"Unknown document id: {document_id}; no scoped search "
+                "was performed."
+            )
+        if document_id in excluded:
+            return QueryOutcome(
+                sufficient=False,
+                reason=(
+                    "The scoped document is still being ingested (or its "
+                    "ingestion failed); no chunks are searchable yet."
+                ),
+                hits=(),
+                best_dense_score=None,
+            )
+        if not chunks:
+            return QueryOutcome(
+                sufficient=False,
+                reason="The scoped document has no stored chunks.",
+                hits=(),
+                best_dense_score=None,
+            )
     if not chunks:
         return QueryOutcome(
             sufficient=False,

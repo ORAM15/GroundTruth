@@ -120,6 +120,24 @@ def list_documents(session_factory) -> list[DocumentSummary]:
         session.close()
 
 
+def document_exists(session_factory, document_id: str) -> bool:
+    """Whether a document row with this id exists at all (issue #65).
+
+    Used by the query endpoint to reject an unknown scope before any
+    other query path runs, so no path can silently fall back to
+    library-wide search. Unlike ``list_documents``, this sees documents
+    whose ingestion is still incomplete — those are known, not unknown.
+    """
+    session = session_factory()
+    try:
+        return (
+            session.query(DocumentRow).filter(DocumentRow.id == document_id).first()
+            is not None
+        )
+    finally:
+        session.close()
+
+
 def find_stored_version(session_factory, content_hash: str) -> StoredDocument | None:
     """Return the stored version for ``content_hash``, or ``None``.
 

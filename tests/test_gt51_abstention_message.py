@@ -49,6 +49,14 @@ GENERIC_CHUNK_PATTERN = re.compile(r":v1:chunk:\d+")
 HALLUCINATED = "7f6420a62ef22aa5704d549f3cdfd545:v1:chunk:241"
 
 
+# NOTE (GT-61 objective 4): these tests must ask a TOPICAL question.
+# The old wording ("What do the documents say about?") is now routed
+# to guidance, so it can no longer reach the verification-failure path
+# these tests pin. The topical wording below reaches generation and
+# verification exactly as the old wording did before objective 4.
+TOPICAL_QUESTION = "How does GroundTruth stores uploaded documents as evidence?"
+
+
 def test_verification_abstention_message_has_no_chunk_ids(client):
     """The live 2026-10-25 case: a draft citing chunks outside the
     retrieved evidence abstains with a clean message."""
@@ -57,7 +65,7 @@ def test_verification_abstention_message_has_no_chunk_ids(client):
     generation.responder = (
         f"Summary citing things [{HALLUCINATED}] and more."
     )
-    response = ask(test_client, "What do the documents say about?")
+    response = ask(test_client, TOPICAL_QUESTION)
     assert response.status_code == 200
     body = response.json()
     assert body["decision"] == "ABSTAIN"
@@ -74,7 +82,7 @@ def test_no_citation_abstention_message_has_no_chunk_ids(client):
     test_client, generation = client
     upload(test_client)
     generation.responder = "PWNED"
-    response = ask(test_client, "What do the documents say about?")
+    response = ask(test_client, TOPICAL_QUESTION)
     assert response.status_code == 200
     body = response.json()
     assert body["decision"] == "ABSTAIN"

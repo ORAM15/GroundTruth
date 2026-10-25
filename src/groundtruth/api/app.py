@@ -30,6 +30,11 @@ from groundtruth.generation import (
     build_grounded_prompt,
     verify_citations,
 )
+from groundtruth.generation.guidance import (
+    guidance_examples,
+    guidance_message,
+    is_topicless_question,
+)
 from groundtruth.ingestion.pdf import PdfLoader, StructureAwareChunker
 from groundtruth.retrieval import service as retrieval_service
 
@@ -92,12 +97,22 @@ class EvidenceItem(BaseModel):
     snippet: str
 
 
+class GuidanceInfo(BaseModel):
+    """Topic-less question guidance (GT-61 objective 4): stored document
+    titles and example-question templates derived from those titles
+    only. Carries no summary content and no citations by design."""
+
+    documents: list[str] = Field(default_factory=list)
+    examples: list[str] = Field(default_factory=list)
+
+
 class QueryResponse(BaseModel):
     decision: str
     message: str
     evidence: list[EvidenceItem] = Field(default_factory=list)
     answer: str | None = None
     citations: list[EvidenceItem] = Field(default_factory=list)
+    guidance: GuidanceInfo | None = None
 
 
 class DocumentListItem(BaseModel):
@@ -413,6 +428,21 @@ def query(
             decision="ABSTAIN",
             message="No authorized evidence store is configured; GroundTruth will not fabricate an answer.",
         )
+    # GT-61 objective 4: a topic-less question has nothing to ground an
+    # answer in, so it gets guidance instead of a bare decline — but
+    # only when something is actually stored (an empty library still
+    # takes the normal path and its honest empty-store abstention).
+    # Guidance needs no embedding or generation provider, so it is
+    # answered before either is consulted.
+    if is_topicless_question(request.question):
+        stored = store.list_documents(session_factory)
+        if stored:
+            titles = [doc.title for doc in stored]
+            return QueryResponse(
+                decision="GUIDANCE",
+                message=guidance_message(len(titles)),
+                guidance=GuidanceInfo(documents=titles, examples=guidance_examples(titles)),
+            )
     if embedding_provider is None:
         raise HTTPException(
             status_code=503,

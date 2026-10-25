@@ -455,6 +455,36 @@ async function handleAsk(event) {
       );
       answerBox.appendChild(chips);
       body.appendChild(answerBox);
+    } else if (payload.decision === "GUIDANCE") {
+      // GT-61 objective 4: a topic-less question gets guidance, not a
+      // bare decline and not an answer. Visually distinct from both:
+      // the dashed guidance panel (shared with the empty-state box),
+      // never the answer box or the decline box. All strings render
+      // via textContent, so stored titles cannot inject markup; the
+      // example buttons only fill the composer, they never ask.
+      const guide = makeEl("div", "turn-guidance conversation-empty");
+      guide.appendChild(makeEl("h3", null, "What is stored, and how to ask"));
+      guide.appendChild(makeEl("p", null, payload.message));
+      const docs = (payload.guidance && payload.guidance.documents) || [];
+      if (docs.length > 0) {
+        guide.appendChild(makeEl("p", null, "Stored documents:"));
+        const list = makeEl("ul", null);
+        docs.forEach((title) => list.appendChild(makeEl("li", null, title)));
+        guide.appendChild(list);
+      }
+      const examples = (payload.guidance && payload.guidance.examples) || [];
+      if (examples.length > 0) {
+        guide.appendChild(makeEl("p", null, "Try asking:"));
+        examples.forEach((example) => {
+          const button = makeEl("button", "text-button", example);
+          button.addEventListener("click", () => {
+            $("question-input").value = example;
+            $("question-input").focus();
+          });
+          guide.appendChild(button);
+        });
+      }
+      body.appendChild(guide);
     } else if (payload.decision === "ABSTAIN") {
       const decline = makeEl("div", "turn-decline");
       decline.appendChild(makeEl("h3", null, "GroundTruth declined to answer"));

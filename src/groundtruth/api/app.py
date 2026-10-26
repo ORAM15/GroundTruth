@@ -110,6 +110,18 @@ class GuidanceInfo(BaseModel):
     examples: list[str] = Field(default_factory=list)
 
 
+class CoverageItem(BaseModel):
+    """Issue #67: one document's contribution to an answer's evidence
+    set — the document id, its display title, and how many of the
+    returned evidence chunks came from it. Computed server-side from
+    the returned hits, so the UI strip cannot drift from the evidence
+    the answer was actually grounded in."""
+
+    document_id: str
+    title: str | None = None
+    chunk_count: int
+
+
 class QueryResponse(BaseModel):
     decision: str
     message: str
@@ -117,6 +129,7 @@ class QueryResponse(BaseModel):
     answer: str | None = None
     citations: list[EvidenceItem] = Field(default_factory=list)
     guidance: GuidanceInfo | None = None
+    coverage: list[CoverageItem] = Field(default_factory=list)
 
 
 class DocumentListItem(BaseModel):
@@ -540,6 +553,16 @@ def query(
         )
     by_chunk_id = {item.chunk_id: item for item in evidence}
     citations = [by_chunk_id[chunk_id] for chunk_id in verification.cited_ids]
+    # Issue #67: the coverage strip travels with the answer — per
+    # document chunk counts over the returned evidence set.
+    coverage = [
+        CoverageItem(
+            document_id=entry.document_id,
+            title=entry.title,
+            chunk_count=entry.chunk_count,
+        )
+        for entry in outcome.coverage
+    ]
     return QueryResponse(
         decision="ANSWERED",
         message=(
@@ -549,4 +572,5 @@ def query(
         evidence=evidence,
         answer=answer,
         citations=citations,
+        coverage=coverage,
     )

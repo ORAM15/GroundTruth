@@ -28,6 +28,19 @@ queries behave exactly as before. A scope naming no stored document
 fails loudly (``UnknownDocumentError``) — it never silently falls back
 to library-wide search, because a silent fallback would answer from a
 document the user did not ask about.
+
+Per-document caps (issue #67): an *unscoped* query no longer runs one
+RRF top-k over the whole library, where a large document's many
+similar chunks crowd small documents out of the evidence set. Instead
+it retrieves per document first (at most ``PER_DOCUMENT_CAP`` chunks
+each), then merges those per-document rankings by fused score and
+truncates to ``top_k``. The cap is a guarantee of inclusion, not a
+promise about final counts: a document's best chunks always reach the
+merge, even when another document has hundreds of similar ones. The
+scoped path is unchanged — it already searches a single document.
+A consequence to know: with few documents stored, the final evidence
+set may be smaller than ``top_k`` (at most cap x documents), because
+no filler chunks are added past the per-document rankings.
 """
 
 from __future__ import annotations
@@ -47,6 +60,12 @@ from groundtruth.retrieval.models import RetrievalResult
 
 DEFAULT_MIN_EVIDENCE_SCORE = 0.35
 MIN_EVIDENCE_SCORE_ENV = "GT_MIN_EVIDENCE_SCORE"
+
+# Issue #67: at most this many chunks per document in an unscoped
+# query's per-document retrieval, before the merge. 3 is a deliberate
+# small number: enough for a document's best passages to be present,
+# small enough that no single document can dominate the merge.
+PER_DOCUMENT_CAP = 3
 
 
 class UnknownDocumentError(ValueError):
@@ -86,6 +105,21 @@ class _SingleTextAdapter:
         return vectors[0]
 
 
+class _FixedVectorProvider:
+    """Serve one already-computed query vector to every retriever in a
+    single search. Issue #67 retrieves per document, which would
+    otherwise call the embedding provider once per document; the query
+    vector is identical every time, so embed it once and reuse it.
+    A query now makes exactly one embedding call total — previously
+    the gate and the hybrid each embedded the question, so two."""
+
+    def __init__(self, vector: Sequence[float]) -> None:
+        self._vector = vector
+
+    def embed(self, text: str) -> Sequence[float]:
+        return self._vector
+
+
 @dataclass(frozen=True)
 class EvidenceHit:
     """One fused retrieval result plus everything the API needs to cite it."""
@@ -98,11 +132,25 @@ class EvidenceHit:
 
 
 @dataclass(frozen=True)
+class CoverageEntry:
+    """One document's contribution to the final evidence set (issue
+    #67): how many of the returned chunks came from it. The API
+    exposes this as the coverage strip; it is computed from the
+    returned hits, never from a separate count, so it cannot drift
+    from what the answer was actually grounded in."""
+
+    document_id: str
+    title: str | None
+    chunk_count: int
+
+
+@dataclass(frozen=True)
 class QueryOutcome:
     sufficient: bool
     reason: str
     hits: tuple[EvidenceHit, ...]
     best_dense_score: float | None
+    coverage: tuple[CoverageEntry, ...] = ()
 
 
 def _load_corpus(session_factory, document_id=None):
@@ -182,6 +230,12 @@ def search(
     corpus (issue #65); an unknown id raises ``UnknownDocumentError``
     and a known-but-unsearchable document abstains with a scoped reason
     — neither case ever falls back to library-wide search.
+
+    When no scope is given (issue #67), retrieval runs per document
+    first (at most ``PER_DOCUMENT_CAP`` chunks each), then merges by
+    fused score into the final evidence set of at most ``top_k`` hits.
+    The dense gate above the fusion still runs over the whole corpus,
+    exactly as before.
     """
     chunks, embeddings, citation, documents, excluded = _load_corpus(
         session_factory, document_id
@@ -217,8 +271,12 @@ def search(
             best_dense_score=None,
         )
 
+    # Embed the question once and reuse the vector for the gate and
+    # for every retriever below: per-document retrieval must not turn
+    # one query into one embedding call per document.
+    query_vector = _SingleTextAdapter(provider).embed(question)
     dense = DenseRetriever(
-        chunks=chunks, embeddings=embeddings, provider=_SingleTextAdapter(provider)
+        chunks=chunks, embeddings=embeddings, provider=_FixedVectorProvider(query_vector)
     )
     # Score every embedded chunk once: the best dense score is the gate.
     dense_results = dense.retrieve(question, top_k=max(len(chunks), 1))
@@ -245,8 +303,55 @@ def search(
             best_dense_score=best_dense_score,
         )
 
-    hybrid = HybridRetriever(lexical=LexicalRetriever(chunks), dense=dense)
-    fused = hybrid.retrieve(question, top_k=top_k)
+    if document_id is not None:
+        # Issue #65, unchanged: one hybrid ranking over the scoped
+        # corpus only.
+        fused = HybridRetriever(
+            lexical=LexicalRetriever(chunks), dense=dense
+        ).retrieve(question, top_k=top_k)
+    else:
+        # Issue #67: retrieve per document first, then merge by fused
+        # score. Grouping uses the same citation mapping that builds
+        # the hits, so a chunk's document is never guessed twice.
+        by_document: dict[str, list[Chunk]] = {}
+        for chunk in chunks:
+            by_document.setdefault(citation(chunk)[0], []).append(chunk)
+        seeds: list[RetrievalResult] = []
+        for doc_chunks in by_document.values():
+            doc_dense = DenseRetriever(
+                chunks=doc_chunks,
+                embeddings=embeddings,
+                provider=_FixedVectorProvider(query_vector),
+            )
+            seeds.extend(
+                HybridRetriever(
+                    lexical=LexicalRetriever(doc_chunks), dense=doc_dense
+                ).retrieve(question, top_k=PER_DOCUMENT_CAP)
+            )
+        # Fused scores are per-document RRF ranks, so comparing them
+        # across documents is approximate — but it preserves the
+        # within-document order that matters, and the deterministic
+        # tie-break (chunk ordinal, then chunk id) keeps the merge
+        # stable when two documents' top chunks tie.
+        ordered = sorted(
+            seeds,
+            key=lambda result: (
+                -result.score,
+                result.chunk.ordinal,
+                result.chunk.chunk_id,
+            ),
+        )
+        fused = [
+            RetrievalResult(
+                chunk=result.chunk,
+                rank=index,
+                score=result.score,
+                method=result.method,
+                lexical_rank=result.lexical_rank,
+                dense_rank=result.dense_rank,
+            )
+            for index, result in enumerate(ordered[:top_k], start=1)
+        ]
     hits = tuple(
         EvidenceHit(
             result=result,
@@ -257,9 +362,25 @@ def search(
         )
         for result in fused
     )
+    counts: dict[str, int] = {}
+    titles: dict[str, str | None] = {}
+    for hit in hits:
+        counts[hit.document_id] = counts.get(hit.document_id, 0) + 1
+        titles[hit.document_id] = hit.title
+    coverage = tuple(
+        CoverageEntry(
+            document_id=doc_id,
+            title=titles[doc_id],
+            chunk_count=count,
+        )
+        for doc_id, count in sorted(
+            counts.items(), key=lambda item: (-item[1], titles[item[0]] or item[0])
+        )
+    )
     return QueryOutcome(
         sufficient=True,
         reason=f"{len(hits)} chunk(s) cleared the evidence threshold.",
         hits=hits,
         best_dense_score=best_dense_score,
+        coverage=coverage,
     )

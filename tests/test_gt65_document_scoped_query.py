@@ -9,11 +9,15 @@ citation verification.
 
 These tests reproduce that shape deterministically: document A has 30
 near-identical chunks sharing the question's vocabulary; document B
-has 7 pages with one unique chunk on page 7. Unscoped, the fused
-top-10 is all A. Scoped to B, the answer must come from B's page-7
-chunk, cited with its page. Scope-clear restores unscoped behaviour,
-and an unknown scope fails loudly instead of silently searching the
-whole library.
+has 7 pages with one unique chunk on page 7. Scoped to B, the answer
+must come from B's page-7 chunk, cited with its page. Scope-clear
+restores unscoped behaviour, and an unknown scope fails loudly
+instead of silently searching the whole library.
+
+Note: issue #67 changed the unscoped outcome — per-document caps now
+guarantee B's unique chunk a place in the evidence set, so the old
+"unscoped is crowded out" expectation no longer holds. That fixed
+behaviour is locked in by test_gt67_per_doc_caps.py, not here.
 """
 
 from __future__ import annotations
@@ -130,18 +134,6 @@ def _ask(client, question, document_id=None):
     return client.post("/api/v1/query", json=payload)
 
 
-def test_unscoped_query_is_crowded_out_by_the_large_document(client):
-    """Reproduces the live failure: unscoped, every evidence item
-    comes from A — B's unique page-7 chunk never makes the top-10."""
-    a_id, _b_id, _title = _library(client)
-    response = _ask(client, QUESTION)
-    assert response.status_code == 200
-    payload = response.json()
-    assert payload["decision"] == "ANSWERED"
-    assert len(payload["evidence"]) == 10
-    assert {item["document_id"] for item in payload["evidence"]} == {a_id}
-
-
 def test_scoped_query_returns_the_scoped_documents_chunk_cited_with_page(client):
     """Scoped to B, the same question must be answered from B's
     page-7 chunk, cited with its page — the live acceptance case."""
@@ -162,15 +154,22 @@ def test_scoped_query_returns_the_scoped_documents_chunk_cited_with_page(client)
 
 
 def test_clearing_the_scope_restores_unscoped_behaviour(client):
-    """Scope, then clear: the unscoped question answers from A again.
-    Scoping must be per-question state, not a sticky server side."""
-    a_id, b_id, _title = _library(client)
+    """Scope, then clear: the cleared question matches a fresh
+    unscoped question exactly (chunk for chunk). Scoping must be
+    per-question state, not a sticky server side. The unscoped result
+    itself is no longer "all A" — issue #67 caps per document, so
+    B's unique chunk is in it; that fixed shape is asserted in
+    test_gt67_per_doc_caps.py."""
+    _a_id, b_id, _title = _library(client)
     scoped = _ask(client, QUESTION, document_id=b_id)
     assert scoped.json()["decision"] == "ANSWERED"
     assert {item["document_id"] for item in scoped.json()["evidence"]} == {b_id}
     unscoped = _ask(client, QUESTION)
+    fresh = _ask(client, QUESTION)
     assert unscoped.json()["decision"] == "ANSWERED"
-    assert {item["document_id"] for item in unscoped.json()["evidence"]} == {a_id}
+    assert [item["chunk_id"] for item in unscoped.json()["evidence"]] == [
+        item["chunk_id"] for item in fresh.json()["evidence"]
+    ]
 
 
 def test_scoped_query_against_an_unknown_document_fails_loudly(client):

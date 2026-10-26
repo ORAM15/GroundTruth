@@ -409,6 +409,20 @@ function renderAnswerWithCitations(container, turnId, answerText, citationsByChu
   }
 }
 
+/* Issue #67: coverage strip — which documents the answer's evidence
+ * came from, and how many chunks each contributed. The whole line is
+ * one textContent string, so stored titles cannot inject markup. */
+function renderCoverageStrip(coverage) {
+  if (!coverage || coverage.length === 0) return null;
+  const parts = coverage.map((entry) => {
+    const name = entry.title || "source";
+    const noun = entry.chunk_count === 1 ? " chunk" : " chunks";
+    return name + " (" + entry.chunk_count + noun + ")";
+  });
+  const label = coverage.length === 1 ? "Evidence from 1 document: " : "Evidence from " + coverage.length + " documents: ";
+  return makeEl("p", "coverage-strip", label + parts.join(" · "));
+}
+
 function renderEvidenceInto(section, turnId, evidence) {
   clearChildren(section);
   if (evidence.length === 0) return;
@@ -494,6 +508,11 @@ async function handleAsk(event) {
       );
       answerBox.appendChild(chips);
       body.appendChild(answerBox);
+      /* Issue #67: the coverage strip sits under the answer, above
+       * the evidence cards, and only renders when the server sent
+       * per-document counts for this answer. */
+      const strip = renderCoverageStrip(payload.coverage || []);
+      if (strip) body.appendChild(strip);
     } else if (payload.decision === "GUIDANCE") {
       // GT-61 objective 4: a topic-less question gets guidance, not a
       // bare decline and not an answer. Visually distinct from both:

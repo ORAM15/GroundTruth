@@ -1,3 +1,95 @@
+> **OWNER DECISION — 2026-10-23:** The checkpoint-gate system, including the C0.2
+> approval blocker, is retired by owner decision (see AGENTS.md). C0.2 is
+> superseded. Work proceeds issue by issue, CI is the gate, and human approval
+> happens at PR merge. All handoff entries below this banner that say work is
+> "blocked on C0.2" or "wait for owner approval for C0.2" are historical records
+> and are superseded by this decision — they no longer describe the project state.
+
+# GROUNDTRUTH HANDOFF RECORD
+
+## Handoff ID
+HO-20261116-001
+
+## Generated
+2026-11-16
+
+## Project State
+C0.2 is superseded by the owner decision of 2026-10-23. No work is blocked on
+C0.2. Work proceeds through GitHub issues, branches, PRs and CI.
+
+## Current Phase
+V1 — cited document Q&A (issue-backlog model)
+
+## Current Checkpoint
+None — checkpoint system retired 2026-10-23.
+
+## Checkpoint Status
+SUPERSEDED
+
+## What Has Been Completed
+- Owner decision 2026-10-23 retired the checkpoint-gate system; AGENTS.md
+  rewritten as the Phase 0 replacement.
+- PR #66 merged 2026-10-25 (document-scoped querying, issue #65).
+- PR #72 merged 2026-10-26 (Slice 1, issue #67 — per-document retrieval caps
+  + coverage strip).
+- Rebuild issues #67–#71 filed 2026-10-25 (Slices 1–5).
+
+## What Is Currently Being Worked On
+Open rebuild issues #67–#71. Live page-7 proof still pending a clean-file
+re-upload (the original test fixture had no extractable text).
+
+## What Is Blocked
+Nothing. PRs #73 (29 Oct, Jules) and #74 (1 Nov, Jules) both attempt to
+reinstate the retired C0.2 approval blocker in this file and conflict with the
+2026-10-23 decision; each carries an unresolved Codex review finding saying
+so. They should be closed, not merged.
+
+## Failed Attempts
+None
+
+## Open Decisions
+None
+
+## Required Human Approvals
+None before work starts. Human approval happens at PR merge, by the owner.
+
+## Latest Validation
+CI is the gate (see AGENTS.md).
+
+## Repository State
+Main, issue-backlog model. State docs PROJECT_STATE.md and this file updated
+2026-11-16 to match AGENTS.md.
+
+## Known Defects
+None recorded here — see open GitHub issues.
+
+## Known Limitations
+Gemini free-tier quota; public demo has no login by design.
+
+## Important Recent Changes
+This entry supersedes all earlier "blocked on C0.2" handoff entries. The
+entries below are preserved as history.
+
+## What Must NOT Be Changed
+Do not reinstate the C0.2 approval blocker or any checkpoint gate in this file.
+
+## Next Permitted Action
+Pick the top unblocked issue, implement, test, open a PR.
+
+## Resume Instructions
+1. Inspect Git state.
+2. Read AGENTS.md — it is the current workflow; PROJECT_STATE.md and this
+   file now match it.
+3. Read the open issues, pick the top unblocked issue, and proceed.
+4. If blocked on an issue, note it once in that issue and move to the next
+   independent issue. Never open a PR whose only purpose is to report a blocker.
+
+## Authoritative References
+- AGENTS.md (current workflow — owner decision 2026-10-23)
+- PROJECT_STATE.md
+- DECISION_LOG.md
+- docs/archive/autonomy/ (historical checkpoint contracts)
+
 # GROUNDTRUTH HANDOFF RECORD
 
 ## Handoff ID

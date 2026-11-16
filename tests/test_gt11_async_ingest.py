@@ -36,6 +36,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from test_gt1_persistence import TWO_PAGE_PDF, make_pdf_bytes, upload
+from test_gt2_retrieval import cite_first_block
 
 from groundtruth.domain.models import Document
 
@@ -89,14 +90,14 @@ class ConstantEmbeddingProvider:
 
 
 class CitingGenerationProvider:
-    """Answers citing the first evidence block in the prompt."""
+    """Answers citing the first evidence block in the prompt (slice 2:
+    self-contained citations, see ``cite_first_block``)."""
 
     provider_name = "fake-provider"
     model_name = "fake-generation-v1"
 
     def generate(self, prompt: str) -> str:
-        chunk_id = re.search(r'<evidence id="([^"]+)"', prompt).group(1)
-        return f"Grounded answer citing the evidence [{chunk_id}]."
+        return cite_first_block(prompt)
 
 
 def _wire(tmp_path, provider, db_name: str):

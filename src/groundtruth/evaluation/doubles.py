@@ -90,8 +90,11 @@ _EVIDENCE_BLOCK = re.compile(r'<evidence id="([^"]+)">\n(.*?)\n</evidence>', re.
 
 class TopEvidenceGenerationProvider:
     """Scripted compliant-model double: answers by quoting the top-ranked
-    evidence block in the prompt and citing its chunk id — the behaviour
-    the production prompt instructs a real model to follow."""
+    evidence block in the prompt and citing it self-containedly (issue
+    #68: Title, p.N: "verbatim quote" [chunk_id]) — the behaviour the
+    production prompt instructs a real model to follow. The full passage
+    follows the citation so the golden key-fact check, which looks for a
+    short fact anywhere in the answer, still measures the same thing."""
 
     provider_name = "evaluation-double"
     model_name = "scripted-top-evidence-v1"
@@ -106,5 +109,24 @@ class TopEvidenceGenerationProvider:
         match = _EVIDENCE_BLOCK.search(prompt)
         if match is None:
             return "The evidence does not answer the question."
-        chunk_id, text = match.group(1), match.group(2).strip()
-        return f"Based on the evidence: {text} [{chunk_id}]"
+        chunk_id, block = match.group(1), match.group(2).strip()
+        lines = block.splitlines()
+        title, page, text = "Untitled document", None, block
+        if lines and lines[0].startswith("Source: "):
+            source_match = re.match(r"^Source: (.*), p\.(\d+)$", lines[0])
+            if source_match:
+                title, page = source_match.group(1), int(source_match.group(2))
+            else:
+                title = lines[0][len("Source: "):]
+            text = "\n".join(lines[1:]).strip()
+        collapsed = " ".join(text.split())
+        # The first sentence, punctuation included — never add a period
+        # the chunk text does not have, or the quote stops being verbatim.
+        end = collapsed.find(". ")
+        quote = collapsed if end == -1 else collapsed[: end + 1]
+        if page is None:
+            return f"Based on the evidence: {text} [{chunk_id}]"
+        return (
+            f'Based on the evidence: {title}, p.{page}: "{quote}" '
+            f"[{chunk_id}]\n\n{text}"
+        )

@@ -23,12 +23,13 @@ from groundtruth.evidence.embeddings import (
     GeminiEmbeddingProvider,
 )
 from groundtruth.generation import (
+    EvidenceChunk,
     EvidencePassage,
     GeminiGenerationProvider,
     GenerationError,
     GenerationProvider,
     build_grounded_prompt,
-    verify_citations,
+    verify_self_contained_citations,
 )
 from groundtruth.generation.guidance import (
     guidance_examples,
@@ -523,10 +524,17 @@ def query(
     ]
     # The prompt is built from the chunks' FULL text — the EvidenceItem
     # snippet is a display truncation and would ground answers in fragments.
+    # Issue #68: each evidence block is labelled with its document title
+    # and first page, so the model can cite self-containedly.
     prompt = build_grounded_prompt(
         request.question,
         [
-            EvidencePassage(chunk_id=hit.result.chunk.chunk_id, text=hit.result.chunk.text)
+            EvidencePassage(
+                chunk_id=hit.result.chunk.chunk_id,
+                text=hit.result.chunk.text,
+                title=hit.title,
+                page=hit.result.chunk.page_start,
+            )
             for hit in outcome.hits
         ],
     )
@@ -534,10 +542,24 @@ def query(
         answer = generation_provider.generate(prompt)
     except GenerationError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
-    # Trust gate: an answer is returned only if every citation it makes
-    # resolves to a chunk that was actually retrieved. Unverifiable text is
-    # never returned as an answer; the query abstains instead.
-    verification = verify_citations(answer, {item.chunk_id for item in evidence})
+    # Trust gate (issue #68): an answer is returned only if every citation
+    # it makes is self-contained — Title, p.N: "verbatim quote" [chunk_id]
+    # — and the title, page and quote match the retrieved chunk they name.
+    # Unverifiable text is never returned as an answer; the query abstains
+    # instead.
+    verification = verify_self_contained_citations(
+        answer,
+        {
+            hit.result.chunk.chunk_id: EvidenceChunk(
+                chunk_id=hit.result.chunk.chunk_id,
+                title=hit.title,
+                page_start=hit.result.chunk.page_start,
+                page_end=hit.result.chunk.page_end,
+                text=hit.result.chunk.text,
+            )
+            for hit in outcome.hits
+        },
+    )
     if not verification.ok:
         # GT-51: the detailed reason names internal chunk ids — it is
         # developer detail, so it goes to the server log only. The

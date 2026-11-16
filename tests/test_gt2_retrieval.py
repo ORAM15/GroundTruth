@@ -73,6 +73,35 @@ class TopicEmbeddingProvider:
         return vectors
 
 
+def cite_first_block(prompt: str) -> str:
+    """Compliant-model double for rebuild slice 2 (issue #68): answer
+    with a self-contained citation to the first evidence block in the
+    prompt — Title, p.N: "verbatim quote" [chunk_id] — quoting the
+    block's first sentence verbatim, straight from its ``Source:`` line
+    and text."""
+    block = re.search(
+        r'<evidence id="([^"]+)">\n(?:Source: ([^\n]+)\n)?(.*?)\n</evidence>',
+        prompt,
+        re.S,
+    )
+    chunk_id, source, text = block.group(1), block.group(2), block.group(3)
+    title, page = "Untitled document", None
+    if source is not None:
+        source_match = re.match(r"^(.*), p\.(\d+)$", source)
+        if source_match:
+            title, page = source_match.group(1), int(source_match.group(2))
+        else:
+            title = source
+    collapsed = " ".join(text.split())
+    # The first sentence, punctuation included — never add a period the
+    # chunk text does not have, or the quote stops being verbatim.
+    end = collapsed.find(". ")
+    quote = collapsed if end == -1 else collapsed[: end + 1]
+    if page is None:
+        return f"Grounded answer citing the evidence [{chunk_id}]."
+    return f"Grounded answer citing the evidence {title}, p.{page}: \"{quote}\" [{chunk_id}]."
+
+
 class CitingGenerationProvider:
     """Minimal GT-3 test double: answers with a citation to the first
     evidence block in the prompt, so evidence-sufficient queries reach the
@@ -82,8 +111,7 @@ class CitingGenerationProvider:
     model_name = "fake-generation-v1"
 
     def generate(self, prompt: str) -> str:
-        chunk_id = re.search(r'<evidence id="([^"]+)"', prompt).group(1)
-        return f"Grounded answer citing the evidence [{chunk_id}]."
+        return cite_first_block(prompt)
 
 
 @pytest.fixture()
